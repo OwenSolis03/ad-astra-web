@@ -170,7 +170,7 @@ h1, h2, h3 {
   margin: 0 auto;
   /* Se adapta a la altura del viewport: en pantallas bajas el hero se compacta
      para que el titular, el texto y los botones siempre queden a la vista */
-  padding: clamp(48px, 9vh, 112px) 24px clamp(48px, 9vh, 112px) 88px;
+  padding: clamp(44px, 7vh, 112px) 24px clamp(44px, 7vh, 112px) 88px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 64px;
