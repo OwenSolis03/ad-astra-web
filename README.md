@@ -69,5 +69,10 @@ los referencia — así todos los visitantes ven el cambio de inmediato.
 ## Pendientes de contenido
 
 - Pan de la casa: retirado del sitio por ahora (no está disponible); reintegrar menú y
-  tarjeta cuando vuelva.
+  tarjeta cuando vuelva. Copy aprobado por Edgar para ese momento: "Repostería hecha
+  con calma, directo del horno a tu mano. No hay todos los días: te avisamos por
+  Instagram un día antes y cuando se acaba, se acaba."
+- Voz de la marca (cuestionario del 12/oct): sin "barista certificado", sin "recetas
+  propias/de familia", sin "rico/delicioso", sin "estudiantes"; preferir "al momento",
+  "del día", "calma", "local", "honesto", "real", "mezclas", "horneamos".
 - Horario de jueves y viernes (por confirmar en la sección "Visítanos").
