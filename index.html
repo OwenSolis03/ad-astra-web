@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=5">
+<link rel="stylesheet" href="css/styles.css?v=6">
 </head>
 <body>
 
@@ -197,6 +197,42 @@
     <p class="footer-tag">Ad Astra — hacia las estrellas, una taza a la vez.</p>
   </div>
 </footer>
+
+<script>
+// Estatus del menú en vivo: una sola lectura al cargar, del documento publico/menu
+// que publica el Moka POS. Si no hay dato o falla, el menú se muestra sin etiquetas.
+(function () {
+  var URL_MENU = 'https://firestore.googleapis.com/v1/projects/ad-astra-510805/databases/(default)/documents/publico/menu';
+  var ETIQUETAS = {
+    disponible: ['Disponible', 'est-ok'],
+    pocos: ['Por agotarse', 'est-pocos'],
+    agotado: ['Agotado', 'est-agotado']
+  };
+  function clave(s) {
+    return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+  fetch(URL_MENU).then(function (r) { return r.ok ? r.json() : null; }).then(function (doc) {
+    var campos = doc && doc.fields && doc.fields.productos && doc.fields.productos.mapValue && doc.fields.productos.mapValue.fields;
+    if (!campos) return;
+    var estatus = {};
+    Object.keys(campos).forEach(function (nombre) { estatus[clave(nombre)] = campos[nombre].stringValue; });
+    document.querySelectorAll('.menu-row').forEach(function (fila) {
+      var nombre = fila.querySelector('span');
+      if (!nombre) return;
+      var etiqueta = ETIQUETAS[estatus[clave(nombre.textContent)]];
+      if (!etiqueta) return;
+      fila.classList.add(etiqueta[1]);
+      var badge = document.createElement('span');
+      badge.className = 'estado';
+      var punto = document.createElement('span');
+      punto.className = 'pt';
+      badge.appendChild(punto);
+      badge.appendChild(document.createTextNode(etiqueta[0]));
+      nombre.appendChild(badge);
+    });
+  }).catch(function () {});
+})();
+</script>
 
 </body>
 </html>
