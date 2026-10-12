@@ -1,0 +1,14 @@
+# Despliegue estático en Google App Engine (standard).
+# Desde la carpeta web/:  gcloud app deploy
+runtime: python312
+
+handlers:
+  - url: /
+    static_files: index.html
+    upload: index.html
+    secure: always
+
+  - url: /(.*)
+    static_files: \1
+    upload: .*
+    secure: always
