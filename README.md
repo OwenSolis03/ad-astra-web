@@ -59,6 +59,13 @@ gsutil iam ch allUsers:objectViewer gs://TU-BUCKET
 Para HTTPS con dominio propio sobre un bucket hace falta un balanceador de carga;
 si quieres dominio propio sin complicarte, App Engine o Firebase Hosting es más fácil.
 
+## Caché
+
+El HTML se sirve con `no-cache` (siempre fresco) y los archivos CSS/JS/SVG con
+caché larga de 7 días. Por eso, al cambiar `css/styles.css`, `img/logo.svg`,
+etc., hay que subir la versión del parámetro `?v=N` con el que `index.html`
+los referencia — así todos los visitantes ven el cambio de inmediato.
+
 ## Pendientes de contenido
 
 - Pan de la casa: retirado del sitio por ahora (no está disponible); reintegrar menú y
