@@ -62,5 +62,4 @@ si quieres dominio propio sin complicarte, App Engine o Firebase Hosting es más
 ## Pendientes de contenido
 
 - Precios y nombres del pan/postre de la casa (`[Pan / postre de la casa]`, `[$ PRECIO]` en index.html).
-- Horario (`[HORARIO]` en la sección "Visítanos").
-- URL de Instagram (el botón apunta a `#`).
+- Horario de jueves y viernes (por confirmar en la sección "Visítanos").
