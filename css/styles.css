@@ -321,10 +321,14 @@ h1, h2, h3 {
 /* Visítanos */
 .visit-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 48px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "copy card" "actions card";
+  gap: 24px 48px;
   align-items: center;
 }
+.visit-copy { grid-area: copy; }
+.visit-grid .info-card { grid-area: card; }
+.visit-actions { grid-area: actions; align-self: start; }
 
 .visit-copy {
   display: flex;
@@ -369,9 +373,91 @@ h1, h2, h3 {
 
 .footer-tag { margin: 0; font-size: 14px; color: #b8ab98; }
 
-/* Móvil */
-@media (max-width: 640px) {
-  .container { padding: 72px 20px; }
-  .hero-inner { padding: 72px 20px 72px 64px; gap: 48px; }
-  .footer-inner { padding: 48px 20px 40px; }
+/* Utilidades de breakpoint (van al final para ganar la cascada) */
+.pin { flex: none; }
+.btn-cream { background: var(--cream); color: var(--ink); }
+.btn-cream:hover { color: var(--ink); filter: brightness(1.05); }
+.btn-block { display: block; text-align: center; font-size: 16px; padding: 15px; }
+.m-only, .m-only-i, .pin { display: none; }
+
+/* Móvil — según el artboard "Vista celular" del board */
+@media (max-width: 700px) {
+  .m-only { display: block; }
+  .m-only-i { display: inline; }
+  .d-only { display: none; }
+
+  .grid-bg {
+    background-size: 24px 24px, 24px 24px, 24px 24px;
+    background-position: 12px 12px, 0 0, 0 0;
+  }
+
+  /* En celular el menú va justo después del hero */
+  main { display: flex; flex-direction: column; }
+  #inicio { order: 1; }
+  .stripe-band { order: 2; }
+  #menu { order: 3; }
+  #como-funciona { order: 4; }
+  #nosotros { order: 5; }
+  #visitanos { order: 6; }
+
+  .site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50; }
+  .nav { padding: 10px 16px; flex-wrap: nowrap; }
+  .nav-logo img { width: 109px; height: 40px; }
+  .nav-links a:not(.btn) { display: none; }
+  .nav-links a.btn { display: flex; align-items: center; gap: 6px; font-size: 14px; padding: 12px 18px; }
+  .pin { display: inline-block; }
+
+  .hero-inner { display: block; padding: 40px 20px 32px 44px; }
+  .hero-copy { gap: 16px; }
+  .hero-copy h1 { font-size: 42px; }
+  .hero-sub { font-size: 17px; }
+  .hero-stripes div { width: 5px; }
+  .hero-row.m-only { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .hero-status { display: flex; flex-direction: column; gap: 8px; font-size: 14px; font-weight: 500; }
+  .hero-status > div { display: flex; align-items: center; gap: 8px; }
+  .hero-status .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .hero-cat-sm { width: 150px; height: 183px; flex: none; }
+
+  .stripe-band div { height: 6px; }
+
+  .container { padding: 48px 20px; }
+  .stack-48 { gap: 20px; }
+  .section-head h2 { font-size: 32px; }
+  .section-sub { font-size: 15px; }
+
+  .cards-3 { gap: 12px; }
+
+  /* Menú: las tarjetas se funden en un solo panel blanco */
+  .menu-pill { display: none; }
+  .menu-cards { gap: 0; }
+  .menu-card { border-radius: 0; padding: 12px 20px; }
+  .menu-card:first-child { border-radius: 20px 20px 0 0; padding-top: 20px; }
+  .menu-card:last-child { border-radius: 0 0 20px 20px; padding-bottom: 20px; }
+  .menu-note { font-size: 13px; }
+
+  /* Pasos en horizontal: número a la izquierda */
+  .step-card { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; padding: 18px; border-radius: 18px; }
+  .step-num { grid-row: span 2; font-size: 28px; }
+  .step-card h3 { font-size: 19px; }
+  .step-card p { font-size: 14px; }
+
+  /* Reporte de misión: carrusel con snap */
+  .feature-cards { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -20px; padding: 0 20px; scrollbar-width: none; }
+  .feature-cards::-webkit-scrollbar { display: none; }
+  .feature-card { flex: 0 0 270px; scroll-snap-align: start; min-height: 0; border-radius: 20px; padding: 24px; gap: 10px; }
+  .feature-card h3 { font-size: 22px; }
+  .feature-card p { font-size: 15px; }
+
+  /* Visítanos: tarjeta primero, botones a lo ancho */
+  .visit-grid { grid-template-columns: 1fr; grid-template-areas: "copy" "card" "actions"; gap: 20px; }
+  .visit-copy { gap: 16px; }
+  .visit-copy h2 { font-size: 32px; }
+  .visit-sub { font-size: 16px; }
+  .info-card { border-radius: 20px 20px 20px 64px; padding: 24px; gap: 14px; }
+  .info-val { font-size: 16px; }
+  .visit-actions { flex-direction: column; gap: 10px; }
+  .visit-actions .btn { display: block; text-align: center; }
+
+  .footer-inner { padding: 36px 20px 40px; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+  .footer-iso { width: 30px; height: 64px; }
 }

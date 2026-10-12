@@ -61,5 +61,6 @@ si quieres dominio propio sin complicarte, App Engine o Firebase Hosting es más
 
 ## Pendientes de contenido
 
-- Precios y nombres del pan/postre de la casa (`[Pan / postre de la casa]`, `[$ PRECIO]` en index.html).
+- Pan de la casa: retirado del sitio por ahora (no está disponible); reintegrar menú y
+  tarjeta cuando vuelva.
 - Horario de jueves y viernes (por confirmar en la sección "Visítanos").
