@@ -21,7 +21,23 @@ python3 -m http.server 8000
 
 ## Desplegar en Google Cloud
 
-### Opción A — App Engine (la más simple, con HTTPS y dominio *.appspot.com)
+### Opción A — Firebase Hosting (recomendada: mismo proyecto que la app)
+
+El POS ya sincroniza con Firebase bajo el proyecto "Ad Astra"; el sitio puede
+vivir en ese mismo proyecto. Ya hay un `firebase.json` listo en esta carpeta.
+
+```bash
+npm install -g firebase-tools   # primera vez
+firebase login                  # primera vez
+cd web
+firebase use --add              # elegir el proyecto Ad Astra, alias p.ej. "default"
+firebase deploy --only hosting
+```
+
+Queda publicado en `https://TU-PROYECTO.web.app` con HTTPS y CDN. Para dominio
+propio: consola de Firebase → Hosting → Agregar dominio personalizado.
+
+### Opción B — App Engine (con HTTPS y dominio *.appspot.com)
 
 ```bash
 cd web
@@ -31,7 +47,7 @@ gcloud app deploy
 Requiere un proyecto de Google Cloud con App Engine habilitado
 (`gcloud app create --region=us-central1` la primera vez).
 
-### Opción B — Cloud Storage (bucket como sitio estático)
+### Opción C — Cloud Storage (bucket como sitio estático)
 
 ```bash
 gsutil mb -l us-central1 gs://TU-BUCKET
