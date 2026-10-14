@@ -244,17 +244,29 @@
     var s = n.replace(/^leche\s+(de\s+)?/i, '');
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
-  // Arma una lista (sabores o leches) en orden alfabético; devuelve cuántos pintó
+  // "Vainilla Bakalar" → "Vainilla": en el sitio solo se anuncia el sabor, no la marca
+  function nombreSabor(n) {
+    return n.replace(/\s+(taras|bakalar)\s*$/i, '');
+  }
+  var ORDEN = { disponible: 0, pocos: 1, agotado: 2 };
+  // Arma una lista (sabores o leches) en orden alfabético; devuelve cuántos pintó.
+  // Si dos insumos quedan con el mismo nombre ya limpio (mismo sabor de dos marcas),
+  // sale una sola fila con el mejor estatus.
   function pintarLista(idLista, idTarjeta, valores, limpiar) {
-    var nombres = Object.keys(valores).filter(function (n) { return ETIQUETAS[valores[n]]; })
-      .sort(function (a, b) { return a.localeCompare(b, 'es'); });
+    var unidos = {};
+    Object.keys(valores).forEach(function (n) {
+      if (!ETIQUETAS[valores[n]]) return;
+      var visible = limpiar ? limpiar(n) : n;
+      if (!(visible in unidos) || ORDEN[valores[n]] < ORDEN[unidos[visible]]) unidos[visible] = valores[n];
+    });
+    var nombres = Object.keys(unidos).sort(function (a, b) { return a.localeCompare(b, 'es'); });
     var lista = document.getElementById(idLista);
     nombres.forEach(function (n, i) {
-      var etiqueta = ETIQUETAS[valores[n]];
+      var etiqueta = ETIQUETAS[unidos[n]];
       var fila = document.createElement('div');
       fila.className = 'menu-row ' + etiqueta[1] + (i === nombres.length - 1 ? ' last' : '');
       var nombre = document.createElement('span');
-      nombre.textContent = limpiar ? limpiar(n) : n;
+      nombre.textContent = n;
       fila.appendChild(nombre);
       fila.appendChild(insignia(etiqueta));
       lista.appendChild(fila);
@@ -275,7 +287,7 @@
       fila.classList.add(etiqueta[1]);
       nombre.appendChild(insignia(etiqueta));
     });
-    var pintados = pintarLista('lista-sabores', 'card-sabores', mapa(doc, 'sabores'))
+    var pintados = pintarLista('lista-sabores', 'card-sabores', mapa(doc, 'sabores'), nombreSabor)
       + pintarLista('lista-leches', 'card-leches', mapa(doc, 'leches'), nombreLeche);
     if (pintados) document.getElementById('extras').hidden = false;
   }).catch(function () {});
