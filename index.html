@@ -244,9 +244,12 @@
     var s = n.replace(/^leche\s+(de\s+)?/i, '');
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
+  // Sabores que en el sitio se anuncian con otro nombre que en el inventario
+  var NOMBRES_SABOR = { pumpkin: 'Pumpkin Spice' };
   // "Vainilla Bakalar" → "Vainilla": en el sitio solo se anuncia el sabor, no la marca
   function nombreSabor(n) {
-    return n.replace(/\s+(taras|bakalar)\s*$/i, '');
+    var s = n.replace(/\s+(taras|bakalar)\s*$/i, '');
+    return NOMBRES_SABOR[s.toLowerCase()] || s;
   }
   var ORDEN = { disponible: 0, pocos: 1, agotado: 2 };
   // Arma una lista (sabores o leches) en orden alfabético; devuelve cuántos pintó.
