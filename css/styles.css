@@ -157,6 +157,9 @@ h1, h2, h3 {
 
 /* Hero */
 .hero { position: relative; overflow: hidden; }
+/* Es lo primero de la página: ir a #inicio (el logo o un enlace con #inicio) vuelve al tope,
+   con la barra del logo a la vista, en lugar de dejarla arriba fuera de la pantalla */
+#inicio { scroll-margin-top: 120px; }
 
 .hero-stripes {
   position: absolute;
@@ -187,6 +190,7 @@ h1, h2, h3 {
   font-size: clamp(40px, min(6vw, 9.5vh), 84px);
   line-height: 1.02;
   letter-spacing: -0.02em;
+  text-wrap: balance; /* renglones parejos: sin "llevar," solo en un renglón */
 }
 
 .hero-sub {
