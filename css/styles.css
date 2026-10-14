@@ -263,16 +263,6 @@ h1, h2, h3 {
 }
 .menu-head .section-head { max-width: 640px; }
 
-.menu-pill {
-  margin: 0;
-  background: var(--ink);
-  color: var(--cream);
-  padding: 12px 20px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
 .menu-cards { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 
 .menu-card {
@@ -491,7 +481,6 @@ h1, h2, h3 {
   .cards-3 { gap: 12px; }
 
   /* Menú: las tarjetas se funden en un solo panel blanco */
-  .menu-pill { display: none; }
   .menu-cards { gap: 0; }
   .menu-card { border-radius: 0; padding: 12px 20px; }
   .menu-card:first-child { border-radius: 20px 20px 0 0; padding-top: 20px; }
