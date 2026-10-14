@@ -336,6 +336,21 @@ h1, h2, h3 {
 .extras-head h3 { font-size: 28px; line-height: 1.1; text-wrap: balance; }
 .extras-head p { margin: 0; font-size: 16px; }
 .extras .menu-row .estado { margin-top: 0; font-size: 13px; flex: none; }
+.extras .menu-row span:first-child .estado { margin-top: 2px; font-size: 12px; }
+/* Precio de la tarjeta (Latte saborizado, Leche vegetal): lo primero que se lee, para que no haya dudas */
+.extra-precio {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.extra-precio .price { font-size: 24px; color: var(--red); }
+.extra-nota { margin: 0 0 4px; font-size: 14px; color: #4a443c; }
+.extra-pie { margin: 8px 0 0; padding-top: 12px; border-top: 1px solid var(--cream); }
+.price-incl { font-family: inherit; font-size: 13px; font-weight: 500; color: #6b645a; }
 
 /* Por qué nosotros */
 .feature-cards { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
