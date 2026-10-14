@@ -309,6 +309,19 @@ h1, h2, h3 {
 .price { font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
 
 .menu-note { margin: 0; font-size: 14px; color: #4a443c; }
+/* Cargo extra que aplica a todas las bebidas: va debajo de ellas, a la vista */
+.menu-aviso {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 24px;
+  font-size: 15px;
+}
+.menu-aviso .price { font-size: 22px; color: var(--red); flex: none; }
 
 /* Estatus del menú (lo publica el POS en Firestore; sin dato no se pinta nada) */
 .estado {
@@ -349,7 +362,6 @@ h1, h2, h3 {
 }
 .extra-precio .price { font-size: 24px; color: var(--red); }
 .extra-nota { margin: 0 0 4px; font-size: 14px; color: #4a443c; }
-.extra-pie { margin: 8px 0 0; padding-top: 12px; border-top: 1px solid var(--cream); }
 .price-incl { font-family: inherit; font-size: 13px; font-weight: 500; color: #6b645a; }
 
 /* Por qué nosotros */
@@ -485,6 +497,7 @@ h1, h2, h3 {
   .menu-card:first-child { border-radius: 20px 20px 0 0; padding-top: 20px; }
   .menu-card:last-child { border-radius: 0 0 20px 20px; padding-bottom: 20px; }
   .menu-note { font-size: 13px; }
+  .menu-aviso { padding: 14px 20px; font-size: 14px; }
   .extras { gap: 14px; margin-top: 12px; }
   .extras-head h3 { font-size: 24px; }
   .extras-head p { font-size: 15px; }
