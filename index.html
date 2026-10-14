@@ -96,7 +96,7 @@
       <div class="step-card">
         <span class="step-num">02</span>
         <h3>Pide a tu gusto</h3>
-        <p>Escoge tu bebida y la leche que prefieras, también hay opciones vegetales.</p>
+        <p>Elige tu bebida del menú. Si quieres, cámbiale la leche por una vegetal o agrégale un sabor.</p>
       </div>
       <div class="step-card">
         <span class="step-num">03</span>
@@ -114,7 +114,7 @@
       <div class="section-head">
         <p class="lbl lbl-red">Bitácora de la barra</p>
         <h2>El menú</h2>
-        <p class="section-sub">Café al momento, con jarabes de productores nacionales.</p>
+        <p class="section-sub">Las mezclas las hacemos aquí y las preparamos al momento. Los jarabes, de productores nacionales.</p>
       </div>
     </div>
     <div class="cards-3 menu-cards bebidas">
@@ -123,7 +123,7 @@
         <div class="menu-row"><span>Americano</span><span class="price">$45</span><p class="menu-desc">Espresso alargado con agua caliente, sin leche.</p></div>
         <div class="menu-row"><span>Latte</span><span class="price">$55</span><p class="menu-desc">Espresso con bastante leche. Suave.</p></div>
         <div class="menu-row"><span>Latte saborizado</span><span class="price">$65</span><p class="menu-desc">Latte con el sabor que elijas de la lista de sabores.</p></div>
-        <div class="menu-row"><span>Capuccino</span><span class="price">$60</span><p class="menu-desc">Espresso con leche y una capa gruesa de espuma.</p></div>
+        <div class="menu-row"><span>Cappuccino</span><span class="price">$60</span><p class="menu-desc">Espresso con leche y una capa gruesa de espuma.</p></div>
         <div class="menu-row last"><span>Mocha</span><span class="price">$65</span><p class="menu-desc">Espresso con chocolate y leche.</p></div>
       </div>
       <div class="menu-card">
@@ -132,23 +132,25 @@
         <div class="menu-row last"><span>Dirty Chai</span><span class="price">$80</span><p class="menu-desc">Chai con leche y un shot de espresso.</p></div>
       </div>
     </div>
-    <p class="menu-aviso"><span><b>Jarabe extra</b> en cualquier bebida, o para darle sabor a una que no lo lleva, como el Americano o el Capuccino.</span><span class="price">+$10</span></p>
-    <div class="extras" id="extras" hidden>
+    <p class="menu-aviso"><span><b>Jarabe extra</b> en cualquier bebida, o para darle sabor a una que no lo lleva, como el Americano o el Cappuccino.</span><span class="price">+$10</span></p>
+    <div class="extras" id="extras">
       <div class="extras-head">
         <h3>Sabores y leches</h3>
-        <p>Esto es lo que hay hoy, al día con nuestro inventario.</p>
+        <p id="extras-al-dia" hidden>Esto es lo que hay hoy, al día con nuestro inventario.</p>
       </div>
       <div class="cards-3 menu-cards">
         <div class="menu-card" id="card-sabores">
           <div class="menu-card-head"><span class="tick tick-red"></span><span class="lbl lbl-sm">Sabores</span></div>
           <div class="extra-precio"><span>Latte saborizado</span><span class="price">$65</span></div>
           <div id="lista-sabores"></div>
+          <p class="extra-nota" id="sabores-sin-datos">Pregunta en el puesto qué sabores hay hoy.</p>
         </div>
         <div class="menu-card" id="card-leches">
           <div class="menu-card-head"><span class="tick tick-amber"></span><span class="lbl lbl-sm">Leches</span></div>
           <div class="extra-precio"><span>Leche vegetal</span><span class="price">+$10</span></div>
           <p class="extra-nota">Las bebidas con leche se preparan con deslactosada, incluida en el precio.</p>
           <div id="lista-leches"></div>
+          <p class="extra-nota" id="leches-sin-datos">Pregunta en el puesto qué leches vegetales hay hoy.</p>
         </div>
       </div>
     </div>
@@ -173,7 +175,7 @@
       <div class="feature-card card-amber">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8l-1 4H9Z"></path><path d="M9 7v3a6 6 0 0 0-3 5v4a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-4a6 6 0 0 0-3-5V7"></path></svg>
         <h3>Leche a tu manera</h3>
-        <p>Varias opciones vegetales para que nadie se quede sin su café.</p>
+        <p>Opciones vegetales para que nadie se quede sin su café.</p>
       </div>
     </div>
   </div>
@@ -250,9 +252,13 @@
   }
   // Sabores que en el sitio se anuncian con otro nombre que en el inventario
   var NOMBRES_SABOR = { pumpkin: 'Pumpkin Spice' };
-  // "Vainilla Bakalar" → "Vainilla": en el sitio solo se anuncia el sabor, no la marca
+  // Jarabes que no se ofrecen como sabor: el Moka es el del Mocha, que ya está en el menú
+  var SABORES_FUERA = { moka: true };
+  // "Vainilla Bakalar" → "Vainilla": en el sitio solo se anuncia el sabor, no la marca.
+  // null si el jarabe no se anuncia como sabor.
   function nombreSabor(n) {
     var s = n.replace(/\s+(taras|bakalar)\s*$/i, '');
+    if (SABORES_FUERA[s.toLowerCase()]) return null;
     return NOMBRES_SABOR[s.toLowerCase()] || s;
   }
   // Qué es cada sabor, por su nombre ya limpio; uno nuevo sin descripción sale solo con su nombre
@@ -262,23 +268,25 @@
     'Caramelo': 'Azúcar tostada, dulce y cremosa.',
     'Chai': 'El sabor del té chai, especiado.',
     'Crema Irlandesa': 'Cremosa, con notas de vainilla y cacao. Sin alcohol.',
-    'Moka': 'Chocolate.',
     'Pumpkin Spice': 'Calabaza especiada, el sabor de temporada.',
     'Vainilla': 'Vainilla clásica, dulce y suave.'
   };
   var ORDEN = { disponible: 0, pocos: 1, agotado: 2 };
+  // Lo que cuesta cada leche sobre el precio de la bebida. El de las vegetales se toma del
+  // encabezado de la tarjeta de Leches, para que el precio esté escrito en un solo lugar.
+  function precioLeche(n) {
+    if (!/almendra|soya|soja|avena|coco|vegetal/i.test(n)) return 'Incluida';
+    return document.querySelector('#card-leches .extra-precio .price').textContent;
+  }
   // Arma una lista (sabores o leches) en orden alfabético; devuelve cuántos pintó.
   // Si dos insumos quedan con el mismo nombre ya limpio (mismo sabor de dos marcas),
-  // sale una sola fila con el mejor estatus.
-  // Lo que cuesta cada leche sobre el precio de la bebida: las vegetales +$10
-  function precioLeche(n) {
-    return /almendra|soya|soja|avena|coco|vegetal/i.test(n) ? '+$10' : 'Incluida';
-  }
-  function pintarLista(idLista, idTarjeta, valores, limpiar, descripciones, precioDe) {
+  // sale una sola fila con el mejor estatus. Si pinta algo, esconde el aviso de «pregunta en el puesto».
+  function pintarLista(idLista, idSinDatos, valores, limpiar, descripciones, precioDe) {
     var unidos = {};
     Object.keys(valores).forEach(function (n) {
       if (!ETIQUETAS[valores[n]]) return;
       var visible = limpiar ? limpiar(n) : n;
+      if (!visible) return;
       if (!(visible in unidos) || ORDEN[valores[n]] < ORDEN[unidos[visible]]) unidos[visible] = valores[n];
     });
     var nombres = Object.keys(unidos).sort(function (a, b) { return a.localeCompare(b, 'es'); });
@@ -309,9 +317,17 @@
       }
       lista.appendChild(fila);
     });
-    document.getElementById(idTarjeta).hidden = !nombres.length;
+    if (nombres.length) document.getElementById(idSinDatos).hidden = true;
     return nombres.length;
   }
+  // Nombres del sitio que en el catálogo del POS se escriben distinto
+  var NOMBRES_POS = { 'cappuccino': 'capuccino' };
+  // El precio del Latte saborizado se escribe una vez, en su fila del menú; la tarjeta de sabores lo copia
+  document.querySelectorAll('.bebidas .menu-row').forEach(function (fila) {
+    if (clave(fila.querySelector('span').textContent) === 'latte saborizado') {
+      document.querySelector('#card-sabores .extra-precio .price').textContent = fila.querySelector('.price').textContent;
+    }
+  });
   fetch(URL_MENU).then(function (r) { return r.ok ? r.json() : null; }).then(function (doc) {
     if (!doc) return;
     var productos = mapa(doc, 'productos');
@@ -320,14 +336,15 @@
     document.querySelectorAll('.bebidas .menu-row').forEach(function (fila) {
       var nombre = fila.querySelector('span');
       if (!nombre) return;
-      var etiqueta = ETIQUETAS[estatus[clave(nombre.textContent)]];
+      var k = clave(nombre.textContent);
+      var etiqueta = ETIQUETAS[estatus[k] || estatus[NOMBRES_POS[k]]];
       if (!etiqueta) return;
       fila.classList.add(etiqueta[1]);
       nombre.appendChild(insignia(etiqueta));
     });
-    var pintados = pintarLista('lista-sabores', 'card-sabores', mapa(doc, 'sabores'), nombreSabor, DESCRIPCIONES_SABOR)
-      + pintarLista('lista-leches', 'card-leches', mapa(doc, 'leches'), nombreLeche, null, precioLeche);
-    if (pintados) document.getElementById('extras').hidden = false;
+    var pintados = pintarLista('lista-sabores', 'sabores-sin-datos', mapa(doc, 'sabores'), nombreSabor, DESCRIPCIONES_SABOR)
+      + pintarLista('lista-leches', 'leches-sin-datos', mapa(doc, 'leches'), nombreLeche, null, precioLeche);
+    if (pintados) document.getElementById('extras-al-dia').hidden = false;
   }).catch(function () {});
 })();
 </script>

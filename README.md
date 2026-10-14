@@ -90,4 +90,8 @@ que publica el POS tras cada venta o movimiento de inventario:
   insumos que nunca se han capturado no se publican.
 
 Sin datos (sin conexión o sin permiso), el menú se ve sin etiquetas y la sección de
-sabores y leches se oculta.
+sabores y leches muestra solo sus precios, con un "pregunta en el puesto" en lugar de la lista.
+
+Precios: cada uno se escribe una sola vez en `index.html`. El del Latte saborizado va en su
+fila del menú (la tarjeta de sabores lo copia) y el de la leche vegetal en el encabezado de la
+tarjeta de Leches (las filas de cada leche lo copian). El sabor Moka no se anuncia: es el Mocha.
