@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=7">
+<link rel="stylesheet" href="css/styles.css?v=8">
 </head>
 <body>
 
@@ -121,16 +121,16 @@
     <div class="cards-3 menu-cards bebidas">
       <div class="menu-card">
         <div class="menu-card-head"><span class="tick tick-blue"></span><span class="lbl lbl-sm">Café</span></div>
-        <div class="menu-row"><span>Americano</span><span class="price">$45</span></div>
-        <div class="menu-row"><span>Latte</span><span class="price">$55</span></div>
-        <div class="menu-row"><span>Latte saborizado</span><span class="price">$65</span></div>
-        <div class="menu-row"><span>Capuccino</span><span class="price">$60</span></div>
-        <div class="menu-row last"><span>Mocha</span><span class="price">$65</span></div>
+        <div class="menu-row"><span>Americano</span><span class="price">$45</span><p class="menu-desc">Espresso alargado con agua caliente, sin leche.</p></div>
+        <div class="menu-row"><span>Latte</span><span class="price">$55</span><p class="menu-desc">Espresso con bastante leche vaporizada. Suave.</p></div>
+        <div class="menu-row"><span>Latte saborizado</span><span class="price">$65</span><p class="menu-desc">Nuestro latte con el sabor que elijas de la lista de sabores.</p></div>
+        <div class="menu-row"><span>Capuccino</span><span class="price">$60</span><p class="menu-desc">Espresso con leche y una capa gruesa de espuma.</p></div>
+        <div class="menu-row last"><span>Mocha</span><span class="price">$65</span><p class="menu-desc">Espresso con chocolate y leche.</p></div>
       </div>
       <div class="menu-card">
         <div class="menu-card-head"><span class="tick tick-green"></span><span class="lbl lbl-sm">Especiales</span></div>
-        <div class="menu-row"><span>Chai</span><span class="price">$70</span></div>
-        <div class="menu-row last"><span>Dirty Chai</span><span class="price">$80</span></div>
+        <div class="menu-row"><span>Chai</span><span class="price">$70</span><p class="menu-desc">Té negro con especias, preparado con leche.</p></div>
+        <div class="menu-row last"><span>Dirty Chai</span><span class="price">$80</span><p class="menu-desc">Nuestro chai con un shot de espresso.</p></div>
       </div>
     </div>
     <div class="extras" id="extras" hidden>
@@ -252,11 +252,22 @@
     var s = n.replace(/\s+(taras|bakalar)\s*$/i, '');
     return NOMBRES_SABOR[s.toLowerCase()] || s;
   }
+  // Qué es cada sabor, por su nombre ya limpio; uno nuevo sin descripción sale solo con su nombre
+  var DESCRIPCIONES_SABOR = {
+    'Amaretto': 'Almendra dulce, con un toque tostado.',
+    'Avellana': 'Avellana tostada, suave y redonda.',
+    'Caramelo': 'Azúcar tostada, dulce y cremosa.',
+    'Chai': 'Especias cálidas como canela y jengibre.',
+    'Crema Irlandesa': 'Cremosa, con notas de vainilla y cacao. Sin alcohol.',
+    'Moka': 'Chocolate.',
+    'Pumpkin Spice': 'Calabaza con canela, nuez moscada y clavo.',
+    'Vainilla': 'Vainilla clásica, dulce y suave.'
+  };
   var ORDEN = { disponible: 0, pocos: 1, agotado: 2 };
   // Arma una lista (sabores o leches) en orden alfabético; devuelve cuántos pintó.
   // Si dos insumos quedan con el mismo nombre ya limpio (mismo sabor de dos marcas),
   // sale una sola fila con el mejor estatus.
-  function pintarLista(idLista, idTarjeta, valores, limpiar) {
+  function pintarLista(idLista, idTarjeta, valores, limpiar, descripciones) {
     var unidos = {};
     Object.keys(valores).forEach(function (n) {
       if (!ETIQUETAS[valores[n]]) return;
@@ -273,6 +284,12 @@
       nombre.textContent = n;
       fila.appendChild(nombre);
       fila.appendChild(insignia(etiqueta));
+      if (descripciones && descripciones[n]) {
+        var desc = document.createElement('p');
+        desc.className = 'menu-desc';
+        desc.textContent = descripciones[n];
+        fila.appendChild(desc);
+      }
       lista.appendChild(fila);
     });
     document.getElementById(idTarjeta).hidden = !nombres.length;
@@ -291,7 +308,7 @@
       fila.classList.add(etiqueta[1]);
       nombre.appendChild(insignia(etiqueta));
     });
-    var pintados = pintarLista('lista-sabores', 'card-sabores', mapa(doc, 'sabores'), nombreSabor)
+    var pintados = pintarLista('lista-sabores', 'card-sabores', mapa(doc, 'sabores'), nombreSabor, DESCRIPCIONES_SABOR)
       + pintarLista('lista-leches', 'card-leches', mapa(doc, 'leches'), nombreLeche);
     if (pintados) document.getElementById('extras').hidden = false;
   }).catch(function () {});
