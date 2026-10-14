@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=6">
+<link rel="stylesheet" href="css/styles.css?v=7">
 </head>
 <body>
 
@@ -118,7 +118,7 @@
       </div>
       <p class="menu-pill">Pídelo con la leche que quieras: tenemos opciones vegetales</p>
     </div>
-    <div class="cards-3 menu-cards">
+    <div class="cards-3 menu-cards bebidas">
       <div class="menu-card">
         <div class="menu-card-head"><span class="tick tick-blue"></span><span class="lbl lbl-sm">Café</span></div>
         <div class="menu-row"><span>Americano</span><span class="price">$45</span></div>
@@ -130,6 +130,22 @@
         <div class="menu-card-head"><span class="tick tick-green"></span><span class="lbl lbl-sm">Especiales</span></div>
         <div class="menu-row"><span>Chai</span><span class="price">$70</span></div>
         <div class="menu-row last"><span>Dirty Chai</span><span class="price">$80</span></div>
+      </div>
+    </div>
+    <div class="extras" id="extras" hidden>
+      <div class="extras-head">
+        <h3>Sabores y leches</h3>
+        <p>Agrégale sabor o cambia la leche. Esto es lo que hay hoy, al día con nuestro inventario.</p>
+      </div>
+      <div class="cards-3 menu-cards">
+        <div class="menu-card" id="card-sabores">
+          <div class="menu-card-head"><span class="tick tick-red"></span><span class="lbl lbl-sm">Sabores</span></div>
+          <div id="lista-sabores"></div>
+        </div>
+        <div class="menu-card" id="card-leches">
+          <div class="menu-card-head"><span class="tick tick-amber"></span><span class="lbl lbl-sm">Leches</span></div>
+          <div id="lista-leches"></div>
+        </div>
       </div>
     </div>
     <p class="menu-note">Precios en MXN. Todo es para llevar.</p>
@@ -207,25 +223,61 @@
   function clave(s) {
     return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
   }
+  // { nombre: estatus } de un campo del documento; vacío si no viene
+  function mapa(doc, campo) {
+    var f = doc && doc.fields && doc.fields[campo] && doc.fields[campo].mapValue && doc.fields[campo].mapValue.fields;
+    var salida = {};
+    if (f) Object.keys(f).forEach(function (k) { salida[k] = f[k].stringValue; });
+    return salida;
+  }
+  function insignia(etiqueta) {
+    var badge = document.createElement('span');
+    badge.className = 'estado';
+    var punto = document.createElement('span');
+    punto.className = 'pt';
+    badge.appendChild(punto);
+    badge.appendChild(document.createTextNode(etiqueta[0]));
+    return badge;
+  }
+  // "Leche de almendras" → "Almendras": la tarjeta ya dice Leches
+  function nombreLeche(n) {
+    var s = n.replace(/^leche\s+(de\s+)?/i, '');
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  // Arma una lista (sabores o leches) en orden alfabético; devuelve cuántos pintó
+  function pintarLista(idLista, idTarjeta, valores, limpiar) {
+    var nombres = Object.keys(valores).filter(function (n) { return ETIQUETAS[valores[n]]; })
+      .sort(function (a, b) { return a.localeCompare(b, 'es'); });
+    var lista = document.getElementById(idLista);
+    nombres.forEach(function (n, i) {
+      var etiqueta = ETIQUETAS[valores[n]];
+      var fila = document.createElement('div');
+      fila.className = 'menu-row ' + etiqueta[1] + (i === nombres.length - 1 ? ' last' : '');
+      var nombre = document.createElement('span');
+      nombre.textContent = limpiar ? limpiar(n) : n;
+      fila.appendChild(nombre);
+      fila.appendChild(insignia(etiqueta));
+      lista.appendChild(fila);
+    });
+    document.getElementById(idTarjeta).hidden = !nombres.length;
+    return nombres.length;
+  }
   fetch(URL_MENU).then(function (r) { return r.ok ? r.json() : null; }).then(function (doc) {
-    var campos = doc && doc.fields && doc.fields.productos && doc.fields.productos.mapValue && doc.fields.productos.mapValue.fields;
-    if (!campos) return;
+    if (!doc) return;
+    var productos = mapa(doc, 'productos');
     var estatus = {};
-    Object.keys(campos).forEach(function (nombre) { estatus[clave(nombre)] = campos[nombre].stringValue; });
-    document.querySelectorAll('.menu-row').forEach(function (fila) {
+    Object.keys(productos).forEach(function (nombre) { estatus[clave(nombre)] = productos[nombre]; });
+    document.querySelectorAll('.bebidas .menu-row').forEach(function (fila) {
       var nombre = fila.querySelector('span');
       if (!nombre) return;
       var etiqueta = ETIQUETAS[estatus[clave(nombre.textContent)]];
       if (!etiqueta) return;
       fila.classList.add(etiqueta[1]);
-      var badge = document.createElement('span');
-      badge.className = 'estado';
-      var punto = document.createElement('span');
-      punto.className = 'pt';
-      badge.appendChild(punto);
-      badge.appendChild(document.createTextNode(etiqueta[0]));
-      nombre.appendChild(badge);
+      nombre.appendChild(insignia(etiqueta));
     });
+    var pintados = pintarLista('lista-sabores', 'card-sabores', mapa(doc, 'sabores'))
+      + pintarLista('lista-leches', 'card-leches', mapa(doc, 'leches'), nombreLeche);
+    if (pintados) document.getElementById('extras').hidden = false;
   }).catch(function () {});
 })();
 </script>

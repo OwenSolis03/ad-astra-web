@@ -322,6 +322,15 @@ h1, h2, h3 {
 .est-agotado span:first-child, .est-agotado .price { color: #8a8378; }
 .est-agotado .price { text-decoration: line-through; text-decoration-thickness: 1px; }
 
+/* Sabores y leches: la arma el script con lo que publica el POS */
+[hidden] { display: none !important; }
+.tick-red { background: var(--red); }
+.extras { display: flex; flex-direction: column; gap: 24px; }
+.extras-head { display: flex; flex-direction: column; gap: 8px; max-width: 640px; }
+.extras-head h3 { font-size: 28px; line-height: 1.1; text-wrap: balance; }
+.extras-head p { margin: 0; font-size: 16px; }
+.extras .menu-row .estado { margin-top: 0; font-size: 13px; flex: none; }
+
 /* Por qué nosotros */
 .feature-cards { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 
@@ -455,6 +464,9 @@ h1, h2, h3 {
   .menu-card:first-child { border-radius: 20px 20px 0 0; padding-top: 20px; }
   .menu-card:last-child { border-radius: 0 0 20px 20px; padding-bottom: 20px; }
   .menu-note { font-size: 13px; }
+  .extras { gap: 14px; margin-top: 12px; }
+  .extras-head h3 { font-size: 24px; }
+  .extras-head p { font-size: 15px; }
 
   /* Pasos en horizontal: número a la izquierda */
   .step-card { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; padding: 18px; border-radius: 18px; }

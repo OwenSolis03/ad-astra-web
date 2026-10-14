@@ -76,3 +76,18 @@ los referencia — así todos los visitantes ven el cambio de inmediato.
   propias/de familia", sin "rico/delicioso", sin "estudiantes"; preferir "al momento",
   "del día", "calma", "local", "honesto", "real", "mezclas", "horneamos".
 - Horario de jueves y viernes (por confirmar en la sección "Visítanos").
+
+## Menú en vivo (desde el Moka POS)
+
+`index.html` lee una vez al cargar el documento público `publico/menu` de Firestore,
+que publica el POS tras cada venta o movimiento de inventario:
+
+- `productos`: estatus de cada bebida; se pinta junto a las filas del menú cuyo nombre
+  coincide con el del catálogo del POS.
+- `sabores` y `leches`: arman la sección "Sabores y leches". Salen de las categorías
+  **Jarabes y polvos** y **Leches** del inventario del POS; para que un insumo aparezca
+  (o deje de aparecer) basta con cambiarle la categoría en Inventario → Editar. Los
+  insumos que nunca se han capturado no se publican.
+
+Sin datos (sin conexión o sin permiso), el menú se ve sin etiquetas y la sección de
+sabores y leches se oculta.
