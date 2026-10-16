@@ -154,7 +154,7 @@
         </div>
       </div>
     </div>
-    <p class="menu-note">Precios en MXN. Todas las bebidas, calientes o frías. Todo es para llevar.</p>
+    <p class="menu-note">Precios en MXN. Todas las bebidas, calientes o frías, menos el Cappuccino, que es solo caliente. Todo es para llevar.</p>
   </div>
 </section>
 
@@ -236,14 +236,32 @@
     if (f) Object.keys(f).forEach(function (k) { salida[k] = f[k].stringValue; });
     return salida;
   }
-  function insignia(etiqueta) {
+  // `nota` va después del estatus: «Disponible · Solo frío»
+  function insignia(etiqueta, nota) {
     var badge = document.createElement('span');
     badge.className = 'estado';
     var punto = document.createElement('span');
     punto.className = 'pt';
     badge.appendChild(punto);
-    badge.appendChild(document.createTextNode(etiqueta[0]));
+    badge.appendChild(document.createTextNode(etiqueta[0] + (nota ? ' · ' + nota : '')));
     return badge;
+  }
+  // { clave del producto: { caliente: estatus, frio: estatus } } del campo temperaturas que publica el POS.
+  // El estatus del producto ya es el de su mejor temperatura (cuenta los vasos de cada una).
+  function temperaturasDe(doc) {
+    var f = doc && doc.fields && doc.fields.temperaturas && doc.fields.temperaturas.mapValue && doc.fields.temperaturas.mapValue.fields;
+    var salida = {};
+    if (f) Object.keys(f).forEach(function (nombre) {
+      salida[clave(nombre)] = mapa({ fields: { t: f[nombre] } }, 't');
+    });
+    return salida;
+  }
+  // Si de las temperaturas de una bebida solo queda una (se acabaron los vasos fríos, por ejemplo), cuál
+  var SOLO = { caliente: 'Solo caliente', frio: 'Solo frío' };
+  function soloTemperatura(temps) {
+    var todas = Object.keys(temps || {});
+    var quedan = todas.filter(function (t) { return temps[t] !== 'agotado'; });
+    return todas.length > 1 && quedan.length === 1 ? SOLO[quedan[0]] : null;
   }
   // "Leche de almendras" → "Almendras": la tarjeta ya dice Leches
   function nombreLeche(n) {
@@ -333,14 +351,16 @@
     var productos = mapa(doc, 'productos');
     var estatus = {};
     Object.keys(productos).forEach(function (nombre) { estatus[clave(nombre)] = productos[nombre]; });
+    var temperaturas = temperaturasDe(doc);
     document.querySelectorAll('.bebidas .menu-row').forEach(function (fila) {
       var nombre = fila.querySelector('span');
       if (!nombre) return;
       var k = clave(nombre.textContent);
-      var etiqueta = ETIQUETAS[estatus[k] || estatus[NOMBRES_POS[k]]];
+      if (!estatus[k] && NOMBRES_POS[k]) k = NOMBRES_POS[k];
+      var etiqueta = ETIQUETAS[estatus[k]];
       if (!etiqueta) return;
       fila.classList.add(etiqueta[1]);
-      nombre.appendChild(insignia(etiqueta));
+      nombre.appendChild(insignia(etiqueta, estatus[k] === 'agotado' ? null : soloTemperatura(temperaturas[k])));
     });
     var pintados = pintarLista('lista-sabores', 'sabores-sin-datos', mapa(doc, 'sabores'), nombreSabor, DESCRIPCIONES_SABOR)
       + pintarLista('lista-leches', 'leches-sin-datos', mapa(doc, 'leches'), nombreLeche, null, precioLeche);
