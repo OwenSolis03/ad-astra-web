@@ -75,7 +75,6 @@ los referencia — así todos los visitantes ven el cambio de inmediato.
 - Voz de la marca (cuestionario del 12/oct): sin "barista certificado", sin "recetas
   propias/de familia", sin "rico/delicioso", sin "estudiantes"; preferir "al momento",
   "del día", "calma", "local", "honesto", "real", "mezclas", "horneamos".
-- Horario de jueves y viernes (por confirmar en la sección "Visítanos").
 
 ## Menú en vivo (desde el Moka POS)
 

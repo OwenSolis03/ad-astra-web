@@ -437,6 +437,9 @@ h1, h2, h3 {
 @media (max-width: 700px) {
   .m-only { display: block; }
   .m-only-i { display: inline; }
+  /* Aviso al inicio del menú: en celular las tarjetas van una tras otra y lo de abajo no se ve */
+  .menu-sigue.m-only { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; font-weight: 500; color: #4a443c; }
+  .menu-sigue svg { flex: none; color: var(--red); }
   .d-only { display: none; }
 
   .grid-bg {
