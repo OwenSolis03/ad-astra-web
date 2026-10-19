@@ -13,9 +13,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=13">
+<link rel="stylesheet" href="css/styles.css?v=14">
 </head>
 <body>
+
+<!-- Íconos de temperatura del menú (flama: caliente, copo: frío) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-flama" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></symbol>
+  <symbol id="i-copo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M12 2v20m8-6-4-4 4-4M4 8l4 4-4 4M16 4l-4 4-4-4M8 20l4-4 4 4"></path></symbol>
+</svg>
 
 <!-- NAV -->
 <header class="site-header">
@@ -117,20 +123,23 @@
         <p class="section-sub">Las mezclas las hacemos aquí y las preparamos al momento. Los jarabes, de productores nacionales.</p>
       </div>
     </div>
-    <p class="menu-sigue m-only"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"></path></svg>El menú sigue hacia abajo: más bebidas, los sabores y las leches.</p>
+    <div class="menu-guia">
+      <p class="menu-leyenda">Cómo se puede pedir cada bebida: <span class="leyenda"><svg class="t-cal" width="16" height="16" aria-hidden="true"><use href="#i-flama"></use></svg>Caliente</span><span class="leyenda"><svg class="t-fri" width="16" height="16" aria-hidden="true"><use href="#i-copo"></use></svg>Frío</span></p>
+      <p class="menu-sigue m-only"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"></path></svg>El menú sigue hacia abajo: más bebidas, los sabores y las leches.</p>
+    </div>
     <div class="cards-3 menu-cards bebidas">
       <div class="menu-card">
         <div class="menu-card-head"><span class="tick tick-blue"></span><span class="lbl lbl-sm">Café</span></div>
-        <div class="menu-row"><span>Americano</span><span class="price">$45</span><p class="menu-desc">Espresso alargado con agua caliente, sin leche.</p></div>
-        <div class="menu-row"><span>Latte</span><span class="price">$55</span><p class="menu-desc">Espresso con bastante leche. Suave.</p></div>
-        <div class="menu-row"><span>Latte saborizado</span><span class="price">$65</span><p class="menu-desc">Latte con el sabor que elijas de la lista de sabores.</p></div>
-        <div class="menu-row"><span>Cappuccino</span><span class="price">$60</span><p class="menu-desc">Espresso con leche y una capa gruesa de espuma.</p></div>
-        <div class="menu-row last"><span>Mocha</span><span class="price">$65</span><p class="menu-desc">Latte con jarabe de moka, sabor chocolate.</p></div>
+        <div class="menu-row"><span>Americano<span class="temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="16" height="16"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="16" height="16"><use href="#i-copo"></use></svg></span></span><span class="price">$45</span><p class="menu-desc">Espresso alargado con agua, sin leche.</p></div>
+        <div class="menu-row"><span>Latte<span class="temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="16" height="16"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="16" height="16"><use href="#i-copo"></use></svg></span></span><span class="price">$55</span><p class="menu-desc">Espresso con bastante leche. Suave.</p></div>
+        <div class="menu-row"><span>Latte saborizado<span class="temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="16" height="16"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="16" height="16"><use href="#i-copo"></use></svg></span></span><span class="price">$65</span><p class="menu-desc">Latte con el sabor que elijas de la lista de sabores.</p></div>
+        <div class="menu-row"><span>Cappuccino<span class="temps" role="img" aria-label="Solo caliente"><svg class="t-cal" data-temp="caliente" width="16" height="16"><use href="#i-flama"></use></svg></span></span><span class="price">$60</span><p class="menu-desc">Espresso con leche y una capa gruesa de espuma.</p></div>
+        <div class="menu-row last"><span>Mocha<span class="temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="16" height="16"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="16" height="16"><use href="#i-copo"></use></svg></span></span><span class="price">$65</span><p class="menu-desc">Latte con jarabe de moka, sabor chocolate.</p></div>
       </div>
       <div class="menu-card">
         <div class="menu-card-head"><span class="tick tick-green"></span><span class="lbl lbl-sm">Especiales</span></div>
-        <div class="menu-row"><span>Chai</span><span class="price">$70</span><p class="menu-desc">Té chai con leche.</p></div>
-        <div class="menu-row last"><span>Dirty Chai</span><span class="price">$80</span><p class="menu-desc">Chai con leche y un shot de espresso.</p></div>
+        <div class="menu-row"><span>Chai<span class="temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="16" height="16"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="16" height="16"><use href="#i-copo"></use></svg></span></span><span class="price">$70</span><p class="menu-desc">Té chai con leche.</p></div>
+        <div class="menu-row last"><span>Dirty Chai<span class="temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="16" height="16"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="16" height="16"><use href="#i-copo"></use></svg></span></span><span class="price">$80</span><p class="menu-desc">Chai con leche y un shot de espresso.</p></div>
       </div>
     </div>
     <p class="menu-aviso"><span><b>Jarabe extra</b> en cualquier bebida, o para darle sabor a una que no lo lleva, como el Americano o el Cappuccino.</span><span class="price">+$10</span></p>
@@ -155,7 +164,7 @@
         </div>
       </div>
     </div>
-    <p class="menu-note">Precios en MXN. Todas las bebidas, calientes o frías, menos el Cappuccino, que es solo caliente. Todo es para llevar.</p>
+    <p class="menu-note">Precios en MXN. Todo es para llevar.</p>
   </div>
 </section>
 
@@ -361,7 +370,12 @@
       var etiqueta = ETIQUETAS[estatus[k]];
       if (!etiqueta) return;
       fila.classList.add(etiqueta[1]);
-      nombre.appendChild(insignia(etiqueta, estatus[k] === 'agotado' ? null : soloTemperatura(temperaturas[k])));
+      var solo = estatus[k] === 'agotado' ? null : soloTemperatura(temperaturas[k]);
+      nombre.appendChild(insignia(etiqueta, solo));
+      // La temperatura que se acabó se ve tenue junto al nombre
+      if (solo) fila.querySelectorAll('.temps svg').forEach(function (icono) {
+        if (temperaturas[k][icono.dataset.temp] === 'agotado') icono.classList.add('sin');
+      });
     });
     var pintados = pintarLista('lista-sabores', 'sabores-sin-datos', mapa(doc, 'sabores'), nombreSabor, DESCRIPCIONES_SABOR)
       + pintarLista('lista-leches', 'leches-sin-datos', mapa(doc, 'leches'), nombreLeche, null, precioLeche);

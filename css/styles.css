@@ -296,6 +296,16 @@ h1, h2, h3 {
 .menu-row:has(.menu-desc) { flex-wrap: wrap; row-gap: 4px; }
 .menu-desc { flex-basis: 100%; margin: 0; font-size: 13px; line-height: 1.4; color: #6b645a; }
 .menu-row span:first-child { font-weight: 500; }
+/* Temperaturas de cada bebida: flama (caliente) y copo (frío), con el rojo y el azul de Ad Astra */
+.temps { display: inline-flex; gap: 4px; margin-left: 8px; vertical-align: -2px; }
+.temps svg, .leyenda svg { display: block; flex: none; }
+.t-cal { color: var(--red); }
+.t-fri { color: var(--blue); }
+.temps svg.sin { opacity: 0.25; }
+/* Guía arriba del menú: qué significan la flama y el copo (y en celular, que el menú sigue abajo) */
+.menu-guia { display: flex; flex-direction: column; gap: 10px; }
+.menu-leyenda { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; font-size: 15px; color: #4a443c; }
+.leyenda { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ink); }
 .price { font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
 
 .menu-note { margin: 0; font-size: 14px; color: #4a443c; }
