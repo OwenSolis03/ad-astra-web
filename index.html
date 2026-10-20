@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=14">
+<link rel="stylesheet" href="css/styles.css?v=15">
 </head>
 <body>
 
@@ -151,7 +151,7 @@
       <div class="cards-3 menu-cards">
         <div class="menu-card" id="card-sabores">
           <div class="menu-card-head"><span class="tick tick-red"></span><span class="lbl lbl-sm">Sabores</span></div>
-          <div class="extra-precio"><span>Latte saborizado</span><span class="price">$65</span></div>
+          <div class="extra-precio"><span>Latte saborizado<span class="temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="20" height="20"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="20" height="20"><use href="#i-copo"></use></svg></span></span><span class="price">$65</span></div>
           <div id="lista-sabores"></div>
           <p class="extra-nota" id="sabores-sin-datos">Pregunta en el puesto qué sabores hay hoy.</p>
         </div>
@@ -372,8 +372,10 @@
       fila.classList.add(etiqueta[1]);
       var solo = estatus[k] === 'agotado' ? null : soloTemperatura(temperaturas[k]);
       nombre.appendChild(insignia(etiqueta, solo));
-      // La temperatura que se acabó se ve tenue junto al nombre
-      if (solo) fila.querySelectorAll('.temps svg').forEach(function (icono) {
+      // La temperatura que se acabó se ve tenue junto al nombre (el del Latte saborizado, también en Sabores)
+      var iconos = Array.prototype.slice.call(fila.querySelectorAll('.temps svg'));
+      if (k === 'latte saborizado') iconos = iconos.concat(Array.prototype.slice.call(document.querySelectorAll('#card-sabores .extra-precio .temps svg')));
+      if (solo) iconos.forEach(function (icono) {
         if (temperaturas[k][icono.dataset.temp] === 'agotado') icono.classList.add('sin');
       });
     });
