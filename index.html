@@ -9,13 +9,21 @@
 <meta property="og:title" content="Ad Astra — Coffee &amp; More">
 <meta property="og:description" content="Tu café para llevar, listo para despegar. Puesto 3, Plaza Búho Emprende, UniSon.">
 <meta property="og:type" content="website">
+<!-- Banner del kit de redes de la marca, recortado a 1200×630 -->
+<meta property="og:image" content="https://ad-astra-510805.web.app/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Logo de Ad Astra, HMO · Coffee &amp; More, sobre la cuadrícula espresso con las franjas de color">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=16">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap">
+<link rel="stylesheet" href="css/styles.css?v=17">
 </head>
 <body>
+
+<a href="#main" class="skip">Saltar al contenido</a>
 
 <!-- Íconos de temperatura del menú (flama: caliente, copo: frío) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -41,7 +49,7 @@
   </nav>
 </header>
 
-<main>
+<main id="main" tabindex="-1">
 
 <!-- HERO -->
 <section id="inicio" class="hero grid-bg">
@@ -54,9 +62,10 @@
   </div>
   <div class="hero-inner">
     <div class="hero-copy">
-      <p class="lbl lbl-amber">Plaza Búho Emprende · Puesto 3</p>
+      <p class="lbl lbl-amber">Plaza Búho Emprende · Puesto&nbsp;3</p>
       <h1>Tu café para llevar,<br>listo para despegar.</h1>
       <p class="hero-sub">Café al momento en plena UniSon. Pides, te lo preparamos y te vas a clase con combustible.</p>
+      <p class="abierto" id="abierto" hidden><span class="dot"></span><span id="abierto-txt"></span></p>
       <div class="hero-row m-only">
         <div class="hero-status">
           <div><span class="dot" style="background: var(--green)"></span>Lunes a viernes</div>
@@ -91,7 +100,7 @@
 <section id="como-funciona" class="section-blue">
   <div class="container stack-48">
     <div class="section-head">
-      <p class="lbl lbl-cream">Secuencia de lanzamiento</p>
+      <p class="lbl lbl-cream">Cómo funciona</p>
       <h2>Pide, recoge y sigue tu órbita.</h2>
       <p class="section-sub">Somos un puesto para llevar: llegas, pides y en unos minutos tienes tu bebida en la mano.</p>
     </div>
@@ -120,7 +129,7 @@
   <div class="container stack-48">
     <div class="menu-head d-only">
       <div class="section-head">
-        <p class="lbl lbl-red">Bitácora de la barra</p>
+        <p class="lbl lbl-ink">Bitácora de la barra</p>
         <h2>El menú</h2>
         <p class="section-sub">Las mezclas las hacemos aquí y las preparamos al momento. Los jarabes, de productores nacionales.</p>
       </div>
@@ -221,7 +230,7 @@
 <section id="nosotros" class="grid-bg">
   <div class="container stack-48">
     <div class="section-head">
-      <p class="lbl lbl-amber">Reporte de misión</p>
+      <p class="lbl lbl-amber">Quiénes somos</p>
       <h2>Chiquito el puesto, grande el café.</h2>
       <p class="section-sub sub-muted">De la UniSon, para la UniSon.</p>
     </div>
@@ -244,7 +253,7 @@
 <section id="visitanos" class="section-green">
   <div class="container visit-grid">
     <div class="visit-copy">
-      <p class="lbl lbl-white">Coordenadas de aterrizaje</p>
+      <p class="lbl lbl-chip">Coordenadas de aterrizaje</p>
       <h2>Búscanos en el puesto 3.</h2>
       <p class="visit-sub">Estamos en la Plaza Búho Emprende de la Universidad de Sonora, a espaldas del edificio 10E.</p>
     </div>
@@ -259,7 +268,7 @@
     </div>
     <div class="visit-actions btn-row">
       <a href="https://maps.app.goo.gl/BQwbnPw9BGxAhbF48" class="btn btn-dark">Abrir en Google Maps</a>
-      <a href="https://www.instagram.com/adastra_hmo" class="btn btn-outline-white"><span class="m-only-i">Síguenos en </span>Instagram</a>
+      <a href="https://www.instagram.com/adastra_hmo" class="btn btn-cream"><span class="m-only-i">Síguenos en </span>Instagram</a>
     </div>
   </div>
 </section>
@@ -418,9 +427,10 @@
         chip.appendChild(tachado);
         chip.appendChild(document.createTextNode(' · agotado'));
       } else {
-        chip.textContent = n + (precio ? (precio === 'Incluida' ? ' · incluida' : ' ' + precio) : '');
+        // «Por agotarse» va escrito: el punto ámbar solo no se distingue (ni en pantallas táctiles, donde no hay title)
+        chip.textContent = n + (precio ? (precio === 'Incluida' ? ' · incluida' : ' ' + precio) : '')
+          + (unidos[n] === 'pocos' ? ' · por agotarse' : '');
       }
-      if (unidos[n] === 'pocos') chip.title = 'Por agotarse';
       lista.appendChild(chip);
     });
     if (nombres.length) document.getElementById(idSinDatos).hidden = true;
@@ -446,9 +456,43 @@
     var origen = document.querySelector(el.dataset.copia);
     if (origen) el.textContent = origen.textContent;
   });
-  // Fecha de «Hoy en la barra»: "Lunes 20 oct"
-  var hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'short' }).replace(',', '').replace('.', '');
+  // Abierto o cerrado según la hora de Hermosillo (lunes a viernes, 9:00 am a 6:00 pm).
+  // No sabe de días feriados ni vacaciones: solo sigue el horario.
+  var ABRE = 9 * 60, CIERRA = 18 * 60;
+  var partes = {};
+  new Intl.DateTimeFormat('en-US', { timeZone: 'America/Hermosillo', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' })
+    .formatToParts(new Date()).forEach(function (p) { partes[p.type] = p.value; });
+  var dia = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(partes.weekday);
+  var minuto = Number(partes.hour) * 60 + Number(partes.minute);
+  var entreSemana = dia >= 1 && dia <= 5;
+  var abierto = entreSemana && minuto >= ABRE && minuto < CIERRA;
+  var estadoHorario;
+  if (abierto) estadoHorario = 'Abierto ahora · cierra a las 6:00 pm';
+  else if (entreSemana && minuto < ABRE) estadoHorario = 'Cerrado · abre hoy a las 9:00 am';
+  else if (dia >= 1 && dia <= 4) estadoHorario = 'Cerrado · abre mañana a las 9:00 am';
+  else estadoHorario = 'Cerrado · abre el lunes a las 9:00 am';
+  var avisoAbierto = document.getElementById('abierto');
+  document.getElementById('abierto-txt').textContent = estadoHorario;
+  avisoAbierto.classList.toggle('cerrado', !abierto);
+  avisoAbierto.hidden = false;
+  // Fecha de «Hoy en la barra»: "Lunes 20 oct" (abierto o cerrado ya se lee en el hero, justo arriba)
+  var hoy = new Date().toLocaleDateString('es-MX', { timeZone: 'America/Hermosillo', weekday: 'long', day: 'numeric', month: 'short' }).replace(',', '').replace('.', '').replace(' de ', ' ');
   document.getElementById('hoy-fecha').textContent = hoy.charAt(0).toUpperCase() + hoy.slice(1);
+  // Índice de la carta: marca la tarjeta que está a la vista al deslizar
+  var rail = document.querySelector('.carta-rail');
+  if (rail && 'IntersectionObserver' in window) {
+    var enlaces = document.querySelectorAll('.carta-indice a');
+    var observador = new IntersectionObserver(function (vistas) {
+      vistas.forEach(function (v) {
+        if (!v.isIntersecting) return;
+        enlaces.forEach(function (a) {
+          if (a.getAttribute('href') === '#' + v.target.id) a.setAttribute('aria-current', 'true');
+          else a.removeAttribute('aria-current');
+        });
+      });
+    }, { root: rail, threshold: 0.6 });
+    rail.querySelectorAll('.carta-card').forEach(function (c) { observador.observe(c); });
+  }
   // Clave con la que el POS publica una bebida del sitio
   function claveProducto(nombre, estatus) {
     var k = clave(nombre);
@@ -480,11 +524,13 @@
       if (k === 'latte saborizado') iconos = iconos.concat(Array.prototype.slice.call(document.querySelectorAll('#card-sabores .extra-precio .temps svg')));
       if (solo) atenuar(iconos, temperaturas[k]);
     });
-    // Carta del celular: agotada en gris y tachada; la temperatura que se acabó, tenue
+    // Carta del celular: agotada en gris, con el precio tachado y «Agotado» escrito; la temperatura que se acabó, tenue
     document.querySelectorAll('.carta [data-bebida]').forEach(function (fila) {
       var k = claveProducto(fila.dataset.bebida, estatus);
-      if (estatus[k] === 'agotado') fila.classList.add('est-agotado');
-      else if (soloTemperatura(temperaturas[k])) atenuar(fila.querySelectorAll('.c-temps svg'), temperaturas[k]);
+      if (estatus[k] === 'agotado') {
+        fila.classList.add('est-agotado');
+        fila.querySelector('.c-linea').after(insignia(ETIQUETAS.agotado));
+      } else if (soloTemperatura(temperaturas[k])) atenuar(fila.querySelectorAll('.c-temps svg'), temperaturas[k]);
     });
     var sabores = unir(mapa(doc, 'sabores'), nombreSabor);
     var leches = unir(mapa(doc, 'leches'), nombreLeche);

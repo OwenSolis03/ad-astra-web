@@ -6,7 +6,8 @@
       ".firebaserc",
       "app.yaml",
       "README.md",
-      "**/.*"
+      "**/.*",
+      "**/.*/**"
     ],
     "headers": [
       {
