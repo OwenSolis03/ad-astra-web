@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=15">
+<link rel="stylesheet" href="css/styles.css?v=16">
 </head>
 <body>
 
@@ -35,6 +35,9 @@
       <a href="#visitanos">Dónde estamos</a>
       <a href="https://maps.app.goo.gl/BQwbnPw9BGxAhbF48" class="btn btn-solid"><svg class="pin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>Cómo llegar</a>
     </div>
+  </nav>
+  <nav class="atajos m-only" aria-label="Atajos del menú">
+    <a href="#hoy" class="atajo atajo-hoy" id="atajo-hoy" hidden>Hoy</a><a href="#cafe" class="atajo">Café</a><a href="#especiales" class="atajo">Especiales</a><a href="#sabores" class="atajo">Sabores</a><a href="#leches" class="atajo">Leches</a>
   </nav>
 </header>
 
@@ -66,7 +69,6 @@
         <a href="#menu" class="btn btn-solid btn-lg">Ver el menú</a>
         <a href="https://maps.app.goo.gl/BQwbnPw9BGxAhbF48" class="btn btn-outline btn-lg">Cómo llegar</a>
       </div>
-      <a href="#menu" class="btn btn-cream btn-block m-only">Ver el menú</a>
     </div>
     <div class="hero-art d-only">
       <div class="orbit orbit-solid" aria-hidden="true"></div>
@@ -116,18 +118,17 @@
 <!-- MENU -->
 <section id="menu" class="section-cream">
   <div class="container stack-48">
-    <div class="menu-head">
+    <div class="menu-head d-only">
       <div class="section-head">
         <p class="lbl lbl-red">Bitácora de la barra</p>
         <h2>El menú</h2>
         <p class="section-sub">Las mezclas las hacemos aquí y las preparamos al momento. Los jarabes, de productores nacionales.</p>
       </div>
     </div>
-    <div class="menu-guia">
+    <div class="menu-guia d-only">
       <p class="menu-leyenda">Cómo se puede pedir cada bebida: <span class="leyenda"><svg class="t-cal" width="16" height="16" aria-hidden="true"><use href="#i-flama"></use></svg>Caliente</span><span class="leyenda"><svg class="t-fri" width="16" height="16" aria-hidden="true"><use href="#i-copo"></use></svg>Frío</span></p>
-      <p class="menu-sigue m-only"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"></path></svg>El menú sigue hacia abajo: más bebidas, los sabores y las leches.</p>
     </div>
-    <div class="cards-3 menu-cards bebidas">
+    <div class="cards-3 menu-cards bebidas d-only">
       <div class="menu-card">
         <div class="menu-card-head"><span class="tick tick-blue"></span><span class="lbl lbl-sm">Café</span></div>
         <div class="menu-row"><span>Americano<span class="temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="16" height="16"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="16" height="16"><use href="#i-copo"></use></svg></span></span><span class="price">$45</span><p class="menu-desc">Espresso alargado con agua, sin leche.</p></div>
@@ -142,8 +143,8 @@
         <div class="menu-row last"><span>Dirty Chai<span class="temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="16" height="16"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="16" height="16"><use href="#i-copo"></use></svg></span></span><span class="price">$80</span><p class="menu-desc">Chai con leche y un shot de espresso.</p></div>
       </div>
     </div>
-    <p class="menu-aviso"><span><b>Jarabe extra</b> en cualquier bebida, o para darle sabor a una que no lo lleva, como el Americano o el Cappuccino.</span><span class="price">+$10</span></p>
-    <div class="extras" id="extras">
+    <p class="menu-aviso d-only"><span><b>Jarabe extra</b> en cualquier bebida, o para darle sabor a una que no lo lleva, como el Americano o el Cappuccino.</span><span class="price">+$10</span></p>
+    <div class="extras d-only" id="extras">
       <div class="extras-head">
         <h3>Sabores y leches</h3>
         <p id="extras-al-dia" hidden>Esto es lo que hay hoy, al día con nuestro inventario.</p>
@@ -162,6 +163,54 @@
           <div id="lista-leches"></div>
           <p class="extra-nota" id="leches-sin-datos">Pregunta en el puesto qué leches vegetales hay hoy.</p>
         </div>
+      </div>
+    </div>
+    <!-- Celular: resumen del día y carta deslizable (en computadora se ve el menú de arriba) -->
+    <div class="menu-movil m-only">
+      <div id="hoy" class="hoy" hidden>
+        <div class="hoy-head"><span class="lbl">Hoy en la barra</span><span class="hoy-fecha" id="hoy-fecha"></span></div>
+        <p class="hoy-linea"><span class="hoy-pt"></span><span id="hoy-todo">Todo el menú disponible.</span></p>
+        <p class="hoy-linea" id="hoy-agotado" hidden><span class="hoy-pt no"></span><span>Agotado hoy: <b id="hoy-agotados"></b></span></p>
+      </div>
+      <div id="carta" class="carta">
+        <div class="carta-head"><h2>El menú</h2><span class="desliza">Desliza <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></div>
+        <p class="carta-leyenda"><span><svg class="t-cal" data-temp="caliente" width="15" height="15" aria-hidden="true"><use href="#i-flama"></use></svg>Caliente</span><span><svg class="t-fri" data-temp="frio" width="15" height="15" aria-hidden="true"><use href="#i-copo"></use></svg>Frío</span></p>
+        <div class="carta-rail">
+        <div id="cafe" class="carta-card">
+          <div class="carta-card-head"><span><span class="tick tick-blue"></span><span class="lbl">Café</span></span><span class="carta-num">1 / 4</span></div>
+          <div class="c-fila" data-bebida="Americano"><div class="c-linea"><span class="c-nombre">Americano<span class="c-temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="14" height="14" aria-hidden="true"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="14" height="14" aria-hidden="true"><use href="#i-copo"></use></svg></span></span><span class="price" data-precio-de="Americano">$45</span></div><p class="c-desc">Espresso alargado con agua, sin leche.</p></div>
+          <div class="c-fila" data-bebida="Latte"><div class="c-linea"><span class="c-nombre">Latte<span class="c-temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="14" height="14" aria-hidden="true"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="14" height="14" aria-hidden="true"><use href="#i-copo"></use></svg></span></span><span class="price" data-precio-de="Latte">$55</span></div><p class="c-desc">Espresso con bastante leche. Suave.</p></div>
+          <div class="c-fila" data-bebida="Latte saborizado"><div class="c-linea"><span class="c-nombre">Latte saborizado<span class="c-temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="14" height="14" aria-hidden="true"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="14" height="14" aria-hidden="true"><use href="#i-copo"></use></svg></span></span><span class="price" data-precio-de="Latte saborizado">$65</span></div><p class="c-desc">Latte con el sabor que elijas. <a href="#sabores">Ver sabores →</a></p></div>
+          <div class="c-fila" data-bebida="Cappuccino"><div class="c-linea"><span class="c-nombre">Cappuccino<span class="c-temps" role="img" aria-label="Solo caliente"><svg class="t-cal" data-temp="caliente" width="14" height="14" aria-hidden="true"><use href="#i-flama"></use></svg></span></span><span class="price" data-precio-de="Cappuccino">$60</span></div><p class="c-desc">Espresso con leche y espuma gruesa.</p></div>
+          <div class="c-fila last" data-bebida="Mocha"><div class="c-linea"><span class="c-nombre">Mocha<span class="c-temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="14" height="14" aria-hidden="true"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="14" height="14" aria-hidden="true"><use href="#i-copo"></use></svg></span></span><span class="price" data-precio-de="Mocha">$65</span></div><p class="c-desc">Latte con jarabe de moka, sabor chocolate.</p></div>
+          <div class="c-pie fin"><a href="#especiales">Especiales →</a></div>
+        </div>
+        <div id="especiales" class="carta-card">
+          <div class="carta-card-head"><span><span class="tick tick-green"></span><span class="lbl">Especiales</span></span><span class="carta-num">2 / 4</span></div>
+          <div class="c-fila" data-bebida="Chai"><div class="c-linea"><span class="c-nombre">Chai<span class="c-temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="14" height="14" aria-hidden="true"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="14" height="14" aria-hidden="true"><use href="#i-copo"></use></svg></span></span><span class="price" data-precio-de="Chai">$70</span></div><p class="c-desc">Té chai con leche.</p></div>
+          <div class="c-fila last" data-bebida="Dirty Chai"><div class="c-linea"><span class="c-nombre">Dirty Chai<span class="c-temps" role="img" aria-label="Caliente o frío"><svg class="t-cal" data-temp="caliente" width="14" height="14" aria-hidden="true"><use href="#i-flama"></use></svg><svg class="t-fri" data-temp="frio" width="14" height="14" aria-hidden="true"><use href="#i-copo"></use></svg></span></span><span class="price" data-precio-de="Dirty Chai">$80</span></div><p class="c-desc">Chai con leche y un shot de espresso.</p></div>
+          <div class="c-extra"><span><b>Jarabe extra</b> en cualquier bebida, o un sabor para el Americano o el Cappuccino.</span><span class="price" data-copia=".menu-aviso .price">+$10</span></div>
+          <div class="c-pie"><a href="#cafe">← Café</a><a href="#sabores">Sabores →</a></div>
+        </div>
+        <div id="sabores" class="carta-card">
+          <div class="carta-card-head"><span><span class="tick tick-red"></span><span class="lbl">Sabores</span></span><span class="carta-num">3 / 4</span></div>
+          <p class="c-intro">Para el <b>Latte saborizado (<span data-precio-de="Latte saborizado">$65</span>)</b>, o como jarabe extra en cualquier bebida <b class="rojo" data-copia=".menu-aviso .price">+$10</b>.</p>
+          <div class="chips" id="chips-sabores"></div>
+          <p class="c-intro" id="chips-sabores-sin-datos">Pregunta en el puesto qué sabores hay hoy.</p>
+          <p class="c-nota">Crema Irlandesa sin alcohol. Pumpkin Spice es de temporada.</p>
+          <div class="c-pie"><a href="#especiales">← Especiales</a><a href="#leches">Leches →</a></div>
+        </div>
+        <div id="leches" class="carta-card oscura">
+          <div class="carta-card-head"><span><span class="tick tick-amber"></span><span class="lbl">Leches</span></span><span class="carta-num">4 / 4</span></div>
+          <p class="c-intro">Todas las bebidas con leche llevan <b>deslactosada</b>, incluida en el precio. ¿Prefieres vegetal? <b class="ambar" data-copia="#card-leches .extra-precio .price">+$10</b></p>
+          <div class="chips" id="chips-leches"></div>
+          <p class="c-intro" id="chips-leches-sin-datos">Pregunta en el puesto qué leches vegetales hay hoy.</p>
+          <div class="c-pie"><a href="#sabores">← Sabores</a></div>
+        </div>
+        </div>
+        <nav class="carta-indice" aria-label="Secciones del menú">
+          <a href="#cafe" class="ind-blue">Café</a><a href="#especiales" class="ind-green">Especiales</a><a href="#sabores" class="ind-red">Sabores</a><a href="#leches" class="ind-amber">Leches</a>
+        </nav>
       </div>
     </div>
     <p class="menu-note">Precios en MXN. Todo es para llevar.</p>
@@ -306,10 +355,9 @@
     if (!/almendra|soya|soja|avena|coco|vegetal/i.test(n)) return 'Incluida';
     return document.querySelector('#card-leches .extra-precio .price').textContent;
   }
-  // Arma una lista (sabores o leches) en orden alfabético; devuelve cuántos pintó.
-  // Si dos insumos quedan con el mismo nombre ya limpio (mismo sabor de dos marcas),
-  // sale una sola fila con el mejor estatus. Si pinta algo, esconde el aviso de «pregunta en el puesto».
-  function pintarLista(idLista, idSinDatos, valores, limpiar, descripciones, precioDe) {
+  // { nombre ya limpio: estatus }. Si dos insumos quedan con el mismo nombre (mismo sabor de dos marcas),
+  // cuenta el mejor estatus.
+  function unir(valores, limpiar) {
     var unidos = {};
     Object.keys(valores).forEach(function (n) {
       if (!ETIQUETAS[valores[n]]) return;
@@ -317,7 +365,13 @@
       if (!visible) return;
       if (!(visible in unidos) || ORDEN[valores[n]] < ORDEN[unidos[visible]]) unidos[visible] = valores[n];
     });
-    var nombres = Object.keys(unidos).sort(function (a, b) { return a.localeCompare(b, 'es'); });
+    return unidos;
+  }
+  function alfabetico(a, b) { return a.localeCompare(b, 'es'); }
+  // Arma una lista (sabores o leches) en orden alfabético; devuelve cuántos pintó.
+  // Si pinta algo, esconde el aviso de «pregunta en el puesto».
+  function pintarLista(idLista, idSinDatos, unidos, descripciones, precioDe) {
+    var nombres = Object.keys(unidos).sort(alfabetico);
     var lista = document.getElementById(idLista);
     nombres.forEach(function (n, i) {
       var etiqueta = ETIQUETAS[unidos[n]];
@@ -348,25 +402,74 @@
     if (nombres.length) document.getElementById(idSinDatos).hidden = true;
     return nombres.length;
   }
+  // Celular: sabores y leches como pastillas. Lo incluido va primero y lo agotado al final, tachado.
+  function pintarPastillas(idLista, idSinDatos, unidos, precioDe) {
+    var peso = function (n) { return (unidos[n] === 'agotado' ? 2 : 0) + (precioDe && precioDe(n) !== 'Incluida' ? 1 : 0); };
+    var nombres = Object.keys(unidos).sort(function (a, b) { return peso(a) - peso(b) || alfabetico(a, b); });
+    var lista = document.getElementById(idLista);
+    nombres.forEach(function (n) {
+      var chip = document.createElement('span');
+      var precio = precioDe ? precioDe(n) : null;
+      chip.className = 'chip' + (precio === 'Incluida' ? ' incluida' : '') + (unidos[n] === 'pocos' ? ' pocos' : '');
+      if (unidos[n] === 'agotado') {
+        chip.className += ' agotado';
+        var tachado = document.createElement('s');
+        tachado.textContent = n;
+        chip.appendChild(tachado);
+        chip.appendChild(document.createTextNode(' · agotado'));
+      } else {
+        chip.textContent = n + (precio ? (precio === 'Incluida' ? ' · incluida' : ' ' + precio) : '');
+      }
+      if (unidos[n] === 'pocos') chip.title = 'Por agotarse';
+      lista.appendChild(chip);
+    });
+    if (nombres.length) document.getElementById(idSinDatos).hidden = true;
+  }
+  // Para «Agotado hoy»: "Soya" → "Leche de soya"; la deslactosada no lleva "de"
+  function nombreLecheLargo(n) {
+    return /deslactosada|entera|light/i.test(n) ? 'Leche ' + n.toLowerCase() : 'Leche de ' + n.toLowerCase();
+  }
   // Nombres del sitio que en el catálogo del POS se escriben distinto
   var NOMBRES_POS = { 'cappuccino': 'capuccino' };
-  // El precio del Latte saborizado se escribe una vez, en su fila del menú; la tarjeta de sabores lo copia
+  // Los precios se escriben una vez, en las filas del menú de computadora; la tarjeta de sabores y la carta
+  // del celular los copian (data-precio-de: una bebida; data-copia: otro precio de la página)
+  var preciosMenu = {};
   document.querySelectorAll('.bebidas .menu-row').forEach(function (fila) {
-    if (clave(fila.querySelector('span').textContent) === 'latte saborizado') {
-      document.querySelector('#card-sabores .extra-precio .price').textContent = fila.querySelector('.price').textContent;
-    }
+    preciosMenu[clave(fila.querySelector('span').textContent)] = fila.querySelector('.price').textContent;
   });
+  document.querySelector('#card-sabores .extra-precio .price').textContent = preciosMenu['latte saborizado'];
+  document.querySelectorAll('[data-precio-de]').forEach(function (el) {
+    var precio = preciosMenu[clave(el.dataset.precioDe)];
+    if (precio) el.textContent = precio;
+  });
+  document.querySelectorAll('[data-copia]').forEach(function (el) {
+    var origen = document.querySelector(el.dataset.copia);
+    if (origen) el.textContent = origen.textContent;
+  });
+  // Fecha de «Hoy en la barra»: "Lunes 20 oct"
+  var hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'short' }).replace(',', '').replace('.', '');
+  document.getElementById('hoy-fecha').textContent = hoy.charAt(0).toUpperCase() + hoy.slice(1);
+  // Clave con la que el POS publica una bebida del sitio
+  function claveProducto(nombre, estatus) {
+    var k = clave(nombre);
+    return !estatus[k] && NOMBRES_POS[k] ? NOMBRES_POS[k] : k;
+  }
+  // La temperatura que se acabó se ve tenue
+  function atenuar(iconos, temps) {
+    iconos.forEach(function (icono) { if (temps[icono.dataset.temp] === 'agotado') icono.classList.add('sin'); });
+  }
   fetch(URL_MENU).then(function (r) { return r.ok ? r.json() : null; }).then(function (doc) {
     if (!doc) return;
     var productos = mapa(doc, 'productos');
     var estatus = {};
     Object.keys(productos).forEach(function (nombre) { estatus[clave(nombre)] = productos[nombre]; });
     var temperaturas = temperaturasDe(doc);
+    var agotados = [];
     document.querySelectorAll('.bebidas .menu-row').forEach(function (fila) {
       var nombre = fila.querySelector('span');
       if (!nombre) return;
-      var k = clave(nombre.textContent);
-      if (!estatus[k] && NOMBRES_POS[k]) k = NOMBRES_POS[k];
+      var k = claveProducto(nombre.textContent, estatus);
+      if (estatus[k] === 'agotado') agotados.push(nombre.textContent);
       var etiqueta = ETIQUETAS[estatus[k]];
       if (!etiqueta) return;
       fila.classList.add(etiqueta[1]);
@@ -375,13 +478,31 @@
       // La temperatura que se acabó se ve tenue junto al nombre (el del Latte saborizado, también en Sabores)
       var iconos = Array.prototype.slice.call(fila.querySelectorAll('.temps svg'));
       if (k === 'latte saborizado') iconos = iconos.concat(Array.prototype.slice.call(document.querySelectorAll('#card-sabores .extra-precio .temps svg')));
-      if (solo) iconos.forEach(function (icono) {
-        if (temperaturas[k][icono.dataset.temp] === 'agotado') icono.classList.add('sin');
-      });
+      if (solo) atenuar(iconos, temperaturas[k]);
     });
-    var pintados = pintarLista('lista-sabores', 'sabores-sin-datos', mapa(doc, 'sabores'), nombreSabor, DESCRIPCIONES_SABOR)
-      + pintarLista('lista-leches', 'leches-sin-datos', mapa(doc, 'leches'), nombreLeche, null, precioLeche);
+    // Carta del celular: agotada en gris y tachada; la temperatura que se acabó, tenue
+    document.querySelectorAll('.carta [data-bebida]').forEach(function (fila) {
+      var k = claveProducto(fila.dataset.bebida, estatus);
+      if (estatus[k] === 'agotado') fila.classList.add('est-agotado');
+      else if (soloTemperatura(temperaturas[k])) atenuar(fila.querySelectorAll('.c-temps svg'), temperaturas[k]);
+    });
+    var sabores = unir(mapa(doc, 'sabores'), nombreSabor);
+    var leches = unir(mapa(doc, 'leches'), nombreLeche);
+    var pintados = pintarLista('lista-sabores', 'sabores-sin-datos', sabores, DESCRIPCIONES_SABOR)
+      + pintarLista('lista-leches', 'leches-sin-datos', leches, null, precioLeche);
     if (pintados) document.getElementById('extras-al-dia').hidden = false;
+    pintarPastillas('chips-sabores', 'chips-sabores-sin-datos', sabores);
+    pintarPastillas('chips-leches', 'chips-leches-sin-datos', leches, precioLeche);
+    // «Hoy en la barra»: lo agotado del día (bebidas, sabores y leches)
+    Object.keys(sabores).sort(alfabetico).forEach(function (n) { if (sabores[n] === 'agotado') agotados.push(n); });
+    Object.keys(leches).sort(alfabetico).forEach(function (n) { if (leches[n] === 'agotado') agotados.push(nombreLecheLargo(n)); });
+    if (agotados.length) {
+      document.getElementById('hoy-todo').textContent = 'Todo el menú disponible, menos lo de abajo.';
+      document.getElementById('hoy-agotados').textContent = agotados.join(', ');
+      document.getElementById('hoy-agotado').hidden = false;
+    }
+    document.getElementById('hoy').hidden = false;
+    document.getElementById('atajo-hoy').hidden = false;
   }).catch(function () {});
 })();
 </script>
