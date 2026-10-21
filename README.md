@@ -81,8 +81,14 @@ los referencia — así todos los visitantes ven el cambio de inmediato.
 `index.html` lee una vez al cargar el documento público `publico/menu` de Firestore,
 que publica el POS tras cada venta o movimiento de inventario:
 
-- `productos`: estatus de cada bebida; se pinta junto a las filas del menú cuyo nombre
-  coincide con el del catálogo del POS.
+- `productos`: estatus de cada bebida activa. Una bebida que el POS ya no publica
+  (desactivada o borrada del catálogo) desaparece del menú de la página.
+- `carta` (cuando el POS la publica): la lista completa de bebidas, con nombre, precio,
+  categoría, temperaturas y descripción. Con ella la página arma el menú entero, en
+  computadora y en celular: una bebida nueva aparece sola y una categoría nueva es una
+  tarjeta más. Sin ella se usa la lista escrita en `index.html`.
+- `descripciones`: textos que se capturan en el POS para los sabores (por nombre del
+  insumo). Reemplazan a los de `DESCRIPCIONES_SABOR` en `index.html`.
 - `sabores` y `leches`: arman la sección "Sabores y leches". Salen de las categorías
   **Jarabes y polvos** y **Leches** del inventario del POS; para que un insumo aparezca
   (o deje de aparecer) basta con cambiarle la categoría en Inventario → Editar. Los
@@ -93,4 +99,5 @@ sabores y leches muestra solo sus precios, con un "pregunta en el puesto" en lug
 
 Precios: cada uno se escribe una sola vez en `index.html`. El del Latte saborizado va en su
 fila del menú (la tarjeta de sabores lo copia) y el de la leche vegetal en el encabezado de la
-tarjeta de Leches (las filas de cada leche lo copian). El sabor Moka no se anuncia: es el Mocha.
+tarjeta de Leches (las filas de cada leche lo copian). Con `carta`, los precios de las bebidas
+son los del POS. El sabor Moka solo se oculta mientras el Mocha esté en el menú.
