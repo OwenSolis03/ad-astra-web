@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=27">
+<link rel="stylesheet" href="css/styles.css?v=28">
 </head>
 <body>
 
@@ -225,14 +225,13 @@
   </div>
 </section>
 
-<!-- PEDIR PARA RECOGER (maqueta: arma el pedido y simula el pago; el cobro real lo hará el POS con Mercado Pago) -->
+<!-- PEDIR PARA RECOGER: arma el pedido, lo manda a la función crearPedido y paga en Checkout Pro de Mercado Pago -->
 <section id="pedir" class="pedir grid-bg" aria-labelledby="pedir-titulo">
   <div class="container stack-48">
     <div class="section-head">
       <p class="lbl lbl-amber">Pide para recoger</p>
       <h2 id="pedir-titulo">Pídelo antes y pásate por él.</h2>
       <p class="section-sub sub-muted">Arma tu pedido, págalo con Mercado Pago y recógelo en el puesto 3 sin hacer fila.</p>
-      <p class="maqueta-aviso"><span class="maqueta-tag">Vista previa</span>Todavía no cobramos en línea: nada de lo que pidas aquí se cobra ni llega a la barra.</p>
     </div>
 
     <!-- Regreso de Mercado Pago (back_urls): ?pedido=<external_reference>&status=approved|pending|rejected -->
@@ -282,19 +281,6 @@
       <p class="sg-nota" id="sg-nota">Esta página se actualiza sola. Con el enlace puedes volver a verla desde cualquier navegador.</p>
     </div>
 
-    <!-- Maqueta: lo que hará el barista en el POS -->
-    <div class="pos-simulado" id="pos-simulado" hidden>
-      <p class="maqueta-aviso"><span class="maqueta-tag">Simulación</span>Mueve el pedido como lo hará el barista en el POS:</p>
-      <div class="pos-botones">
-        <button type="button" class="btn btn-cream btn-sm" data-estado="preparando">Preparando</button>
-        <button type="button" class="btn btn-cream btn-sm" data-estado="listo">Listo</button>
-        <button type="button" class="btn btn-cream btn-sm" data-estado="entregado">Entregado</button>
-        <button type="button" class="btn btn-cream btn-sm" data-estado="no_recogido">No recogido</button>
-        <button type="button" class="btn btn-outline btn-sm" id="pos-listo-luego">Listo en 10 s</button>
-      </div>
-      <p class="pos-nota">«Listo en 10 s»: cambia de pestaña mientras tanto para ver el aviso.</p>
-    </div>
-
     <div class="pedir-grid">
       <ul class="pedir-lista" id="pedir-lista" aria-label="Bebidas"></ul>
 
@@ -319,11 +305,13 @@
             <p class="politica-titulo">Antes de pagar</p>
             <ul>
               <li>Te guardamos tu pedido 15 min después de tu hora<span id="guardado-hasta"></span>. Después ya no lo guardamos y no hay reembolso.</li>
-              <li>Puedes cancelar mientras no empecemos a prepararlo.</li>
+              <li>Puedes cancelar, con reembolso, mientras no empecemos a prepararlo: escríbenos con tu número de pedido.</li>
               <li>Máximo 4 bebidas por pedido.</li>
             </ul>
+            <p class="politica-legal">Al pagar aceptas los <a href="terminos.html">términos de los pedidos</a> y el <a href="privacidad.html">aviso de privacidad</a>.</p>
           </div>
           <button type="button" class="btn btn-solid btn-pagar" id="btn-pagar" aria-describedby="politica">Pagar con Mercado Pago</button>
+          <p class="campo-error" id="pago-error" role="alert" hidden></p>
           <p class="carrito-nota">Pagas con tarjeta o saldo de Mercado Pago y vuelves aquí con tu número de pedido.</p>
         </div>
       </aside>
@@ -359,26 +347,6 @@
     </form>
   </dialog>
 
-  <!-- Maqueta: en lugar del checkout de Mercado Pago -->
-  <dialog class="personaliza claro mp-simulado" id="mp-simulado" aria-labelledby="mp-titulo">
-    <div class="pz-head">
-      <div>
-        <p class="lbl lbl-ink">Simulación</p>
-        <h3 id="mp-titulo">Aquí se abriría Mercado Pago</h3>
-        <p class="pz-desc">En la versión real te mandamos al checkout de Mercado Pago y, al pagar, te regresa a esta página. Elige cómo termina el pago para ver cada caso:</p>
-      </div>
-      <button type="button" class="pz-cerrar" id="mp-cerrar" aria-label="Cerrar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
-    </div>
-    <div class="mp-opciones">
-      <button type="button" class="btn btn-solid" data-status="approved">Pago aprobado</button>
-      <button type="button" class="btn btn-outline-ink" data-status="pending">Pago pendiente</button>
-      <button type="button" class="btn btn-outline-ink" data-status="rejected">Pago rechazado</button>
-    </div>
-    <details class="mp-json">
-      <summary>Lo que recibiría el POS para crear el cobro</summary>
-      <pre id="mp-json"></pre>
-    </details>
-  </dialog>
 </section>
 
 <!-- POR QUE NOSOTROS -->
@@ -436,14 +404,22 @@
     <img class="footer-iso" src="img/isotipo.svg" alt="Isotipo de Ad Astra">
     <p class="lbl lbl-cream">HMO · Coffee &amp; More · 2026</p>
     <p class="footer-tag">Ad Astra — hacia las estrellas, una taza a la vez.</p>
+    <p class="footer-legal"><a href="terminos.html">Términos de los pedidos</a> · <a href="privacidad.html">Aviso de privacidad</a></p>
   </div>
 </footer>
 
 <script>
+// Dónde leer y pedir: Firestore y la función crearPedido del proyecto. Servida en el puerto 5000 de esta máquina
+// (pedidos-local del Moka POS) usa los emuladores, con Mercado Pago simulado.
+window.AdAstraNube = /^(127\.0\.0\.1|localhost)$/.test(location.hostname) && location.port === '5000'
+  ? { firestore: 'http://127.0.0.1:8085/v1/projects/demo-moka/databases/(default)/documents',
+      crearPedido: 'http://127.0.0.1:5001/demo-moka/us-central1/crearPedido' }
+  : { firestore: 'https://firestore.googleapis.com/v1/projects/ad-astra-510805/databases/(default)/documents',
+      crearPedido: 'https://us-central1-ad-astra-510805.cloudfunctions.net/crearPedido' };
 // Estatus del menú en vivo: una sola lectura al cargar, del documento publico/menu
 // que publica el Moka POS. Si no hay dato o falla, el menú se muestra sin etiquetas.
 (function () {
-  var URL_MENU = 'https://firestore.googleapis.com/v1/projects/ad-astra-510805/databases/(default)/documents/publico/menu';
+  var URL_MENU = window.AdAstraNube.firestore + '/publico/menu';
   var ETIQUETAS = {
     disponible: ['Disponible', 'est-ok'],
     pocos: ['Por agotarse', 'est-pocos'],
@@ -938,11 +914,11 @@
 </script>
 
 <script>
-// Pedir para recoger (maqueta). Arma el pedido con los precios del menú y lo que hay hoy (evento adastra:menu),
-// y simula el pago. En la versión real, «Pagar» manda el pedido al POS: el POS crea la preferencia de
-// Checkout Pro con su clave de Mercado Pago (la clave nunca vive en esta página), devuelve el init_point
-// y aquí solo se redirige. Mercado Pago regresa a esta página con ?status y external_reference (back_urls)
-// y avisa al POS por webhook, que es lo que confirma el pago.
+// Pedir para recoger. Arma el pedido con los precios del menú y lo que hay hoy (evento adastra:menu) y lo manda a
+// la función crearPedido del Moka POS, que recalcula los precios con su catálogo, revisa cupo y existencias y crea el
+// cobro de Checkout Pro (la clave de Mercado Pago nunca vive en esta página). Aquí solo se redirige al init_point.
+// Mercado Pago regresa con ?pedido=<número>&status=… (back_urls) y avisa al webhook, que es lo que confirma el pago;
+// el seguimiento lee el documento público pedidos/<número> que mueve el POS.
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var lista = $('pedir-lista');
@@ -983,6 +959,7 @@
   var hoy = { bebidas: {}, sabores: null, leches: null };
   // { "AAAA-MM-DD HH:MM": bebidas ya apartadas en ese turno }, de pedidosEnLinea.ocupados del POS
   var ocupados = {};
+  var pausa = false; // pedidosEnLinea.activo === false: el POS pausó los pedidos en línea
 
   function guardar(clave, valor) { try { sessionStorage.setItem(clave, JSON.stringify(valor)); } catch (e) {} }
   function leer(clave) { try { return JSON.parse(sessionStorage.getItem(clave)); } catch (e) { return null; } }
@@ -1323,9 +1300,10 @@
       horas.forEach(function (h, i) { if (h.fecha === antes.fecha && h.m === antes.m) sel.selectedIndex = i; });
     }
     if (!horas.length) nota = 'Ya no hay horarios en línea disponibles. Ven al puesto 3.';
+    if (pausa) nota = 'Por ahora no estamos recibiendo pedidos en línea. Ven al puesto 3.';
     $('hora-nota').textContent = nota;
     $('hora-nota').hidden = !nota;
-    $('btn-pagar').disabled = !horas.length;
+    $('btn-pagar').disabled = !horas.length || pausa || pagando;
     pintarGuardado();
   }
   // La política dice hasta qué hora se guarda el pedido con la hora elegida
@@ -1335,30 +1313,32 @@
   }
   $('pedido-hora').addEventListener('change', pintarGuardado);
 
-  // ---- Pagar (simulado) ----
-  var mp = $('mp-simulado');
-  var pedidoActual = null;
-  // Lo que el POS necesita para crear la preferencia de Checkout Pro. El POS agrega notification_url
-  // (su webhook) y la clave; los precios los vuelve a calcular con su catálogo, no se confía en estos.
-  function preferencia(pedido) {
-    var vuelta = location.origin + location.pathname;
-    return {
-      items: pedido.items.map(function (i) {
-        return { title: i.nombre, description: i.detalle, quantity: i.cantidad, unit_price: i.unitario, currency_id: 'MXN' };
-      }),
-      external_reference: pedido.id,
-      // turnos: [{ turno: "AAAA-MM-DD HH:MM", bebidas }]; el POS los vuelve a revisar contra su cupo
-      metadata: { nombre: pedido.nombre, recoger: pedido.recoger, turnos: pedido.turnos, origen: 'sitio' },
-      // El pago caduca a los 15 min: un pedido sin pagar no aparta su turno para siempre
-      expires: true,
-      expiration_date_to: new Date(Date.now() + 15 * 60e3).toISOString(),
-      back_urls: { success: vuelta, pending: vuelta, failure: vuelta },
-      auto_return: 'approved',
-      // Café para recoger: sin pagos en efectivo (OXXO) que tardan en acreditarse
-      payment_methods: { excluded_payment_types: [{ id: 'ticket' }, { id: 'atm' }] }
-    };
+  // ---- Pagar ----
+  var pagando = false;
+  function errorPago(texto) {
+    $('pago-error').textContent = texto || '';
+    $('pago-error').hidden = !texto;
+  }
+  // Token de App Check si la página lo tiene configurado (window.AdAstraAppCheck devuelve una promesa con el token)
+  function tokenAppCheck() {
+    if (typeof window.AdAstraAppCheck !== 'function') return Promise.resolve(null);
+    return Promise.resolve().then(window.AdAstraAppCheck).catch(function () { return null; });
+  }
+  // Vuelve a leer el cupo y la pausa (después de «ya no hay lugar»): las horas sin lugar desaparecen
+  function leerCupo() {
+    return fetch(window.AdAstraNube.firestore + '/publico/menu?mask.fieldPaths=pedidosEnLinea', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (doc) {
+        var f = doc && doc.fields && doc.fields.pedidosEnLinea && doc.fields.pedidosEnLinea.mapValue.fields;
+        if (!f) return;
+        pausa = !!(f.activo && f.activo.booleanValue === false);
+        var o = (f.ocupados && f.ocupados.mapValue && f.ocupados.mapValue.fields) || {};
+        ocupados = {};
+        Object.keys(o).forEach(function (k) { ocupados[k] = Number(o[k].integerValue || o[k].doubleValue || 0); });
+      }).catch(function () {}).then(pintarHoras);
   }
   $('btn-pagar').addEventListener('click', function () {
+    if (pagando) return;
     var nombre = $('pedido-nombre').value.trim();
     if (!nombre) {
       $('nombre-error').hidden = false;
@@ -1369,48 +1349,101 @@
     var sel = $('pedido-hora');
     var h = horas[sel.selectedIndex];
     if (!h) return;
-    pedidoActual = {
-      id: 'AA-' + Date.now().toString(36).slice(-6).toUpperCase(),
-      items: carrito.map(function (i) { return { nombre: i.nombre, detalle: i.detalle, unitario: i.unitario, cantidad: i.cantidad }; }),
-      total: total(),
+    errorPago('');
+    pagando = true;
+    $('btn-pagar').disabled = true;
+    $('btn-pagar').textContent = 'Conectando con Mercado Pago…';
+    // Los precios no se mandan: la función los calcula con el catálogo del POS
+    var cuerpo = {
+      items: carrito.map(function (i) { return { nombre: i.nombre, detalle: i.detalle, cantidad: i.cantidad }; }),
       nombre: nombre,
-      asap: sel.value === 'asap',
-      recoger: h.etiqueta + ', ' + hora(h.m),
-      hasta: hora(h.m + GUARDADO),
-      fecha: h.fecha,
-      m: h.m,
-      // En la versión real el código lo da el POS al confirmar el pago
-      codigo: String(1000 + Math.floor(Math.random() * 9000)),
+      recoger: claveTurno(h.fecha, h.m),
       turnos: h.turnos
     };
-    // En este navegador (localStorage), para que «Ver mi pedido» siga ahí aunque se cierre la pestaña
-    guardarLocal('adastra:pedido:' + pedidoActual.id, pedidoActual);
-    $('mp-json').textContent = JSON.stringify(preferencia(pedidoActual), null, 2);
-    mp.showModal();
+    tokenAppCheck().then(function (token) {
+      var cabeceras = { 'Content-Type': 'application/json' };
+      if (token) cabeceras['X-Firebase-AppCheck'] = token;
+      return fetch(window.AdAstraNube.crearPedido, { method: 'POST', headers: cabeceras, body: JSON.stringify(cuerpo) });
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (datos) { return { ok: r.ok, status: r.status, datos: datos }; });
+    }).then(function (res) {
+      if (!res.ok || !res.datos.init_point) throw res;
+      // En este navegador (localStorage), para que «Ver mi pedido» siga ahí aunque se cierre la pestaña
+      var pedido = {
+        id: res.datos.id,
+        items: carrito.map(function (i) { return { nombre: i.nombre, detalle: i.detalle, unitario: i.unitario, cantidad: i.cantidad }; }),
+        total: total(),
+        nombre: nombre,
+        asap: sel.value === 'asap',
+        recoger: h.etiqueta + ', ' + hora(h.m),
+        hasta: hora(h.m + GUARDADO),
+        fecha: h.fecha,
+        m: h.m,
+        codigo: null, // lo da el POS cuando se confirma el pago
+        turnos: h.turnos
+      };
+      guardarLocal('adastra:pedido:' + pedido.id, pedido);
+      guardarLocal('adastra:ultimo', pedido.id);
+      location.href = res.datos.init_point;
+    }).catch(function (e) {
+      var datos = (e && e.datos) || {};
+      pagando = false;
+      $('btn-pagar').textContent = 'Pagar ' + pesos(total()) + ' con Mercado Pago';
+      errorPago(datos.mensaje || 'No pudimos conectar. Revisa tu internet e intenta otra vez.');
+      // Sin lugar, hora pasada o en pausa: se vuelven a pintar las horas con el cupo de ahora
+      if (e && (e.status === 409 || e.status === 503)) leerCupo();
+      else pintarHoras();
+    });
   });
   $('pedido-nombre').addEventListener('input', function () {
     if (this.value.trim()) { $('nombre-error').hidden = true; this.removeAttribute('aria-invalid'); }
   });
-  $('mp-cerrar').addEventListener('click', function () { mp.close(); });
-  // Simula el regreso de Mercado Pago a las back_urls
-  mp.querySelectorAll('[data-status]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      location.href = location.pathname + '?pedido=' + pedidoActual.id + '&external_reference=' + pedidoActual.id
-        + '&status=' + b.dataset.status + '#pedir';
-    });
-  });
 
   // ---- Seguimiento del pedido ----
-  // El POS mueve el pedido: pagado → preparando → listo → entregado (o no_recogido). En la versión real,
-  // consultarEstado lee el documento público del pedido en Firestore (pedidos/<número>, que solo se puede
-  // leer sabiendo el número). En la maqueta lee lo que deja el simulador del POS en este navegador.
+  // El POS mueve el pedido: pagado → preparando → listo → entregado (o no_recogido). consultarEstado lee el
+  // documento público pedidos/<número> (solo se puede leer sabiendo el número; listar no). Antes de que llegue el
+  // aviso del pago está «pendiente»; sin pagar en 15 min, «vencido»; cancelado con reembolso, «cancelado».
   var PASOS = ['pagado', 'preparando', 'listo', 'entregado'];
-  var FINALES = { entregado: true, no_recogido: true };
+  var FINALES = { entregado: true, no_recogido: true, vencido: true, cancelado: true, error: true };
+  var ID_PEDIDO = /^AA-[2-9A-HJKMNP-Z]{12}$/;
   var CONSULTA_MS = 15000;
-  var seguido = null, estadoVisto = null, consulta = null, avisoCinco = false;
+  var seguido = null, estadoVisto = null, consulta = null, pronto = null, avisoCinco = false;
   var tituloOriginal = document.title;
 
-  function consultarEstado(id) { return Promise.resolve(leerLocal('adastra:estado:' + id)); }
+  // { estado, codigo, recoger, inicial } de pedidos/<número>, o null si no se pudo leer
+  function leerPublico(id) {
+    return fetch(window.AdAstraNube.firestore + '/pedidos/' + encodeURIComponent(id), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (doc) {
+        var f = doc && doc.fields;
+        if (!f) return null;
+        var texto = function (k) { return (f[k] && f[k].stringValue) || null; };
+        return { estado: texto('estado'), codigo: texto('codigo'), recoger: texto('recoger'), inicial: texto('inicial') };
+      }).catch(function () { return null; });
+  }
+  function consultarEstado(id) {
+    return leerPublico(id).then(function (d) {
+      if (!d) return leerLocal('adastra:estado:' + id); // sin conexión: lo último que se supo
+      // El código llega con el pago
+      if (d.codigo && seguido && seguido.id === id && seguido.codigo !== d.codigo) {
+        seguido.codigo = d.codigo;
+        $('sg-codigo').textContent = d.codigo;
+        guardarLocal('adastra:pedido:' + id, seguido);
+      }
+      guardarLocal('adastra:estado:' + id, d.estado);
+      return d.estado;
+    });
+  }
+  // Un pedido abierto con el enlace en otro navegador: se arma con lo público (sin bebidas, con la inicial)
+  function pedidoDesdePublico(id, d) {
+    var t = /^(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2})$/.exec(d.recoger || '');
+    var fecha = t ? t[1] : fechaHMO(0);
+    var m = t ? Number(t[2]) * 60 + Number(t[3]) : 0;
+    var dia = fecha === fechaHMO(0) ? 'Hoy' : fecha === fechaHMO(1) ? 'Mañana'
+      : new Date(fecha + 'T12:00:00Z').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'UTC' });
+    return { id: id, items: [], nombre: d.inicial ? d.inicial + '.' : '', recoger: dia + ', ' + hora(m), hasta: hora(m + GUARDADO),
+      fecha: fecha, m: m, codigo: d.codigo };
+  }
   function minutoHMO() { var d = new Date(Date.now() - 7 * 3600e3); return d.getUTCHours() * 60 + d.getUTCMinutes(); }
   // Minutos que faltan para que se acabe el guardado (null si el pedido es de otro día)
   function quedan(p) { return p.fecha === fechaHMO(0) ? p.m + GUARDADO - minutoHMO() : null; }
@@ -1424,6 +1457,9 @@
       case 'listo': return ['¡Listo! Pásate al puesto 3', 'Di tu nombre y el código ' + p.codigo + '. Te lo guardamos hasta las ' + p.hasta + '.' + resta];
       case 'entregado': return ['Entregado. ¡Buen despegue!', 'Gracias por pedir con Ad Astra.'];
       case 'no_recogido': return ['Ya no te lo pudimos guardar', 'Te lo guardamos hasta las ' + p.hasta + ' y ya pasó esa hora. Como dice la política, ya no hay reembolso. Si crees que es un error, escríbenos por Instagram.'];
+      case 'vencido': return ['El pago no se completó a tiempo', 'Tu pedido se canceló porque el pago no llegó en 15 min. No se te cobró nada: puedes hacer otro pedido.'];
+      case 'cancelado': return ['Pedido cancelado', 'Te devolvimos el pago a tu tarjeta por Mercado Pago. Puede tardar unos días en verse en tu estado de cuenta.'];
+      case 'error': return ['No pudimos crear el cobro', 'No se te cobró nada. Intenta hacer tu pedido otra vez.'];
       default: return ['Pagado: tu pedido está en la fila', 'Lo empezamos a preparar unos minutos antes de tu hora (' + p.recoger.toLowerCase() + ').'];
     }
   }
@@ -1443,7 +1479,6 @@
       else li.removeAttribute('aria-current');
     });
     $('sg-avisar').hidden = !('Notification' in window) || Notification.permission !== 'default' || FINALES[estado] || estado === 'listo';
-    $('pos-simulado').hidden = !!FINALES[estado];
     pintarMiPedido();
   }
 
@@ -1462,7 +1497,6 @@
       $('sg-items').appendChild(li);
     });
     $('seguimiento').hidden = false;
-    $('pos-simulado').hidden = false;
     $('mi-pedido').hidden = true;
     estadoVisto = null;
     avisoCinco = false;
@@ -1482,7 +1516,10 @@
   function revisar() {
     if (!seguido) return;
     consultarEstado(seguido.id).then(function (estado) {
-      estado = estado || 'pagado';
+      estado = estado || 'pendiente';
+      // Recién pagado, el aviso de Mercado Pago tarda unos segundos: se vuelve a ver pronto
+      clearTimeout(pronto);
+      if (estado === 'pendiente') pronto = setTimeout(revisar, 4000);
       if (estado !== estadoVisto) {
         // El primer pintado no avisa: solo los cambios mientras la página está abierta
         if (estadoVisto !== null) {
@@ -1506,7 +1543,6 @@
     clearInterval(consulta);
     seguido = null;
     $('seguimiento').hidden = true;
-    $('pos-simulado').hidden = true;
     history.replaceState(null, '', location.pathname + '#pedir');
     pintarMiPedido();
     $('pedir-titulo').focus();
@@ -1522,7 +1558,7 @@
   function pintarMiPedido() {
     var id = leerLocal('adastra:ultimo');
     var p = id && leerPedido(id);
-    var estado = id && (leerLocal('adastra:estado:' + id) || 'pagado');
+    var estado = id && (leerLocal('adastra:estado:' + id) || 'pendiente');
     var vigente = p && !FINALES[estado] && p.fecha >= fechaHMO(0);
     $('mi-pedido').hidden = !vigente || (seguido && seguido.id === id);
     if (!vigente) return;
@@ -1530,25 +1566,6 @@
     $('mi-pedido-texto').textContent = p.id + ' · ' + textos(p, estado)[0];
   }
 
-  // Simulador del POS (maqueta)
-  var luego = null;
-  function moverPedido(estado) {
-    guardarLocal('adastra:estado:' + seguido.id, estado);
-    revisar();
-  }
-  $('pos-simulado').querySelectorAll('[data-estado]').forEach(function (b) {
-    b.addEventListener('click', function () { prepararSonido(); moverPedido(b.dataset.estado); });
-  });
-  $('pos-listo-luego').addEventListener('click', function () {
-    prepararSonido();
-    clearTimeout(luego);
-    var id = seguido.id;
-    $('pos-listo-luego').textContent = 'Listo en 10 s…';
-    luego = setTimeout(function () {
-      $('pos-listo-luego').textContent = 'Listo en 10 s';
-      if (seguido && seguido.id === id) moverPedido('listo');
-    }, 10000);
-  });
   // Otra pestaña con el mismo pedido se entera al momento
   window.addEventListener('storage', function (e) { if (seguido && e.key === 'adastra:estado:' + seguido.id) revisar(); });
 
@@ -1598,7 +1615,7 @@
   });
 
   // ---- Regreso de Mercado Pago ----
-  // Lo que dice la URL solo sirve para avisar al cliente: el pago lo confirma el POS con el webhook
+  // Lo que dice la URL solo sirve para avisar al cliente: el pago lo confirma el webhook (pedidos/<número>)
   var params = new URLSearchParams(location.search);
   var ref = params.get('external_reference') || params.get('pedido');
   var status = params.get('status') || params.get('collection_status');
@@ -1606,10 +1623,12 @@
   $('pedir-titulo').tabIndex = -1;
   // Pago aprobado o pendiente, o solo ?pedido=: el seguimiento. Rechazado: el aviso de abajo.
   if (pedidoUrl && (!status || status === 'approved' || status === 'pending' || status === 'in_process')) {
-    if (!leerLocal('adastra:estado:' + ref)) guardarLocal('adastra:estado:' + ref, status === 'approved' ? 'pagado' : status ? 'pendiente' : 'pagado');
     guardarLocal('adastra:ultimo', ref);
-    carrito = [];
+    if (status) { carrito = []; guardar('adastra:carrito', carrito); }
     abrirSeguimiento(pedidoUrl, true);
+  } else if (ref && !pedidoUrl && ID_PEDIDO.test(ref) && status !== 'rejected' && status !== 'failure' && status !== 'null') {
+    // El enlace del pedido abierto en otro navegador: lo público basta para seguirlo
+    leerPublico(ref).then(function (d) { if (d) abrirSeguimiento(pedidoDesdePublico(ref, d), true); });
   } else if (ref && status) {
     var pedido = pedidoUrl;
     var ok = status === 'approved', pendiente = status === 'pending' || status === 'in_process';
@@ -1655,6 +1674,7 @@
     hoy = e.detail;
     BEBIDAS = leerBebidas();
     ocupados = (e.detail.pedidosEnLinea && e.detail.pedidosEnLinea.ocupados) || {};
+    pausa = !!(e.detail.pedidosEnLinea && e.detail.pedidosEnLinea.activo === false);
     pintarLista();
     pintarHoras();
   });

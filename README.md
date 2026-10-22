@@ -6,6 +6,8 @@ Landing page estática de Ad Astra (Coffee & More), basada en el diseño del can
 ```
 web/
 ├── index.html
+├── privacidad.html aviso de privacidad
+├── terminos.html   términos de los pedidos para recoger
 ├── css/styles.css
 ├── img/            logo, gato astronauta, isotipo y favicon (SVG)
 └── app.yaml        configuración para Google App Engine
@@ -93,10 +95,10 @@ que publica el POS tras cada venta o movimiento de inventario:
   **Jarabes y polvos** y **Leches** del inventario del POS; para que un insumo aparezca
   (o deje de aparecer) basta con cambiarle la categoría en Inventario → Editar. Los
   insumos que nunca se han capturado no se publican.
-- `pedidosEnLinea.ocupados` (pedidos para recoger, aún en maqueta): bebidas en línea ya
-  apartadas por turno de 15 min, con la hora de Hermosillo, por ejemplo
-  `{ "2026-10-22 10:15": 2 }`. Cada turno admite 2 bebidas en línea; las horas sin lugar
-  no se ofrecen. Sin el campo, todos los turnos se ven libres.
+- `pedidosEnLinea`: `{ activo, ocupados }`. `ocupados` son las bebidas en línea ya apartadas
+  por turno de 15 min, con la hora de Hermosillo, por ejemplo `{ "2026-10-22 10:15": 2 }`.
+  Cada turno admite 2 bebidas en línea; las horas sin lugar no se ofrecen. Con `activo: false`
+  (el POS pausó los pedidos en línea) no se puede pagar. Sin el campo, todos los turnos se ven libres.
 
 Reglas de los pedidos para recoger (`TOPE`, `CUPO_TURNO`, `TURNO` y `GUARDADO` al inicio del
 script del pedido en `index.html`): máximo 4 bebidas por pedido, 2 bebidas en línea por turno
@@ -104,14 +106,38 @@ de 15 min, y el pedido se guarda 15 min después de su hora. Un pedido de 3 o 4 
 turno y el anterior. La página solo las muestra: el POS tiene que volver a revisarlas al crear el
 pedido, porque cualquiera puede saltarse lo que hace la página.
 
-Seguimiento del pedido (aún en maqueta): `?pedido=<número>#pedir` muestra el código de 4 dígitos,
-la hora para recoger, hasta cuándo se guarda y el avance Pagado → Preparando → Listo → Entregado
-(o No recogido). La página consulta el estado cada 15 s; en la versión real lo lee de un documento
-público por pedido (por ejemplo `pedidos/<número>` con `estado`: `pagado`, `preparando`, `listo`,
-`entregado` o `no_recogido`), que el POS cambia con sus botones. Las reglas de Firestore deben
-dejar leer un pedido solo por su número (sin listar) y el documento llevar solo lo mínimo: estado,
-hora e inicial del nombre. El código para recoger también lo da el POS. Al pasar a «Listo», la
-página vibra, suena, cambia el título de la pestaña y, con permiso, manda una notificación.
+## Pedidos para recoger (con el Moka POS)
+
+«Pagar» manda el pedido a la función `crearPedido` del Moka POS (`functions/` en ese repositorio):
+
+```json
+{ "items": [{ "nombre": "Latte", "detalle": "Frío · Leche de avena · Jarabe de Vainilla", "cantidad": 2 }],
+  "nombre": "Owen", "recoger": "2026-10-22 10:45", "turnos": [{ "turno": "2026-10-22 10:45", "bebidas": 2 }] }
+```
+
+La función recalcula los precios con el catálogo del POS (los de la página no se mandan), revisa tope,
+cupo, horario y lo agotado, aparta el turno y devuelve `{ id, init_point }`: la página redirige a Checkout Pro.
+Si responde un error (`{ error, mensaje }`), el mensaje se muestra junto al botón; con 409 o 503 se vuelve a leer
+`pedidosEnLinea` para quitar las horas sin lugar. Contrato completo: `docs/pedidos-en-linea.md` del Moka POS.
+
+Mercado Pago regresa a `?pedido=<número>&status=…`. El pago no lo confirma la URL sino el webhook: el seguimiento
+lee cada 15 s (cada 4 s mientras está «pendiente») el documento público `pedidos/<número>` con `estado`
+(`pendiente`, `pagado`, `preparando`, `listo`, `entregado`, `no_recogido`, `vencido`, `cancelado` o `error`),
+`codigo`, `recoger` e `inicial`. Solo se puede leer sabiendo el número; listar no. El enlace del pedido sirve
+en cualquier navegador: sin el pedido guardado, se arma con lo público (inicial en lugar del nombre). Al pasar a
+«Listo», la página vibra, suena, cambia el título de la pestaña y, con permiso, manda una notificación.
+
+- **App Check**: si la página define `window.AdAstraAppCheck` (una función que devuelve una promesa con el token,
+  por ejemplo con el SDK de Firebase y reCAPTCHA Enterprise), se manda en `X-Firebase-AppCheck`. Mientras no
+  esté, la función debe correr con `EXIGIR_APP_CHECK=false`.
+- **CSP**: este `firebase.json` no define `Content-Security-Policy`. Si se agrega, `connect-src` debe incluir
+  `https://firestore.googleapis.com` y `https://us-central1-ad-astra-510805.cloudfunctions.net`.
+- **Probar en local**: con este repositorio junto al del Moka POS (`…/Moka_POS` y `…/ad-astra-web`), correr
+  `pedidos-local.bat` en el Moka POS y abrir `http://127.0.0.1:5000/#pedir`. Servida en el puerto 5000, la
+  página usa los emuladores (`window.AdAstraNube` al inicio del primer script) y Mercado Pago simulado; el POS
+  queda en `http://127.0.0.1:5050/pos/`. Con `python3 -m http.server 8000` sigue leyendo producción.
+- El aviso de privacidad (`privacidad.html`) y los términos (`terminos.html`) describen lo que hace el sistema;
+  si cambia qué datos se piden o la política de cancelación, hay que actualizarlos (y su fecha).
 
 Sin datos (sin conexión o sin permiso), el menú se ve sin etiquetas y la sección de
 sabores y leches muestra solo sus precios, con un "pregunta en el puesto" en lugar de la lista.
