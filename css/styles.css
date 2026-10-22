@@ -268,6 +268,10 @@ h1, h2, h3 {
 /* En computadora el texto lleva más ancho que el gato, para que el titular quepa en dos renglones */
 @media (min-width: 961px) {
   .hero-inner { grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); }
+  /* El hero y la franja de abajo llenan la pantalla: la sección azul no se asoma en la portada.
+     89px = la barra del logo (16 + 56 + 16 + 1 de borde); 50px = las cinco franjas de 10px */
+  .hero { min-height: calc(100svh - 89px - 50px); display: flex; align-items: center; }
+  .hero-inner { width: 100%; }
 }
 
 .hero-copy {
