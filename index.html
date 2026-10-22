@@ -1319,6 +1319,14 @@ window.AdAstraNube = /^(127\.0\.0\.1|localhost)$/.test(location.hostname) && loc
     $('pago-error').textContent = texto || '';
     $('pago-error').hidden = !texto;
   }
+  // Solo se redirige al checkout de Mercado Pago (o al simulado de los emuladores, en local)
+  function destinoPago(url) {
+    try {
+      var u = new URL(url);
+      if (window.AdAstraNube.crearPedido.indexOf('http://127.0.0.1:5001/') === 0) return u.origin === 'http://127.0.0.1:5001';
+      return u.protocol === 'https:' && /(^|\.)mercadopago\.com(\.mx)?$/.test(u.hostname);
+    } catch (e) { return false; }
+  }
   // Token de App Check si la página lo tiene configurado (window.AdAstraAppCheck devuelve una promesa con el token)
   function tokenAppCheck() {
     if (typeof window.AdAstraAppCheck !== 'function') return Promise.resolve(null);
@@ -1367,7 +1375,7 @@ window.AdAstraNube = /^(127\.0\.0\.1|localhost)$/.test(location.hostname) && loc
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (datos) { return { ok: r.ok, status: r.status, datos: datos }; });
     }).then(function (res) {
-      if (!res.ok || !res.datos.init_point) throw res;
+      if (!res.ok || !destinoPago(res.datos.init_point)) throw res;
       // En este navegador (localStorage), para que «Ver mi pedido» siga ahí aunque se cierre la pestaña
       var pedido = {
         id: res.datos.id,

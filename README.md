@@ -130,8 +130,12 @@ en cualquier navegador: sin el pedido guardado, se arma con lo público (inicial
 - **App Check**: si la página define `window.AdAstraAppCheck` (una función que devuelve una promesa con el token,
   por ejemplo con el SDK de Firebase y reCAPTCHA Enterprise), se manda en `X-Firebase-AppCheck`. Mientras no
   esté, la función debe correr con `EXIGIR_APP_CHECK=false`.
-- **CSP**: este `firebase.json` no define `Content-Security-Policy`. Si se agrega, `connect-src` debe incluir
-  `https://firestore.googleapis.com` y `https://us-central1-ad-astra-510805.cloudfunctions.net`.
+- **Encabezados de seguridad** (`firebase.json`): `Content-Security-Policy` (scripts y estilos solo de este sitio,
+  fuentes de Google Fonts, conexiones solo a Firestore y a la función de pedidos, sin iframes), `nosniff`,
+  `X-Frame-Options`, `Referrer-Policy` y `Permissions-Policy`. Si se agrega otro servicio (App Check con reCAPTCHA,
+  analítica, otro dominio de la función), hay que permitirlo en la CSP o el navegador lo bloquea. En App Engine
+  van los mismos básicos en `app.yaml` y `.gcloudignore` deja fuera el README y la configuración.
+- La página solo redirige a `init_point` si es de `mercadopago.com(.mx)` (o del emulador, en local).
 - **Probar en local**: con este repositorio junto al del Moka POS (`…/Moka_POS` y `…/ad-astra-web`), correr
   `pedidos-local.bat` en el Moka POS y abrir `http://127.0.0.1:5000/#pedir`. Servida en el puerto 5000, la
   página usa los emuladores (`window.AdAstraNube` al inicio del primer script) y Mercado Pago simulado; el POS

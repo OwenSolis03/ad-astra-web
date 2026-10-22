@@ -1,0 +1,7 @@
+# Lo que no se sube a App Engine (gcloud app deploy): solo se publica el sitio
+.gcloudignore
+.git
+.gitignore
+README.md
+firebase.json
+.firebaserc
