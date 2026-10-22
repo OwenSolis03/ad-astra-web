@@ -35,7 +35,15 @@
   --radius-md: 16px;
   --radius-lg: 48px;
   --radius-full: 9999px;
+
+  /* Curvas de movimiento: entrar o salir, moverse en pantalla, hojas que suben */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
+
+/* La selección de texto también va con la paleta */
+::selection { background: var(--amber); color: var(--ink); }
 
 * { box-sizing: border-box; }
 
@@ -148,8 +156,9 @@ h1, h2, h3 {
   max-width: 680px;
 }
 
+/* Por debajo del titular del hero, para que la jerarquía no se invierta */
 .section-head h2 {
-  font-size: clamp(36px, 4.4vw, 60px);
+  font-size: clamp(32px, 3.6vw, 48px);
   line-height: 1.05;
   letter-spacing: -0.015em;
 }
@@ -165,18 +174,32 @@ h1, h2, h3 {
   font-size: 15px;
   padding: 12px 22px;
   border-radius: var(--radius-full);
-  transition: filter .15s ease, background .15s ease, color .15s ease;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform 160ms var(--ease-out);
 }
 .btn-lg { font-size: 16px; padding: 14px 28px; }
+/* Hover con colores de la paleta, sin aclarar el fondo (eso daría un tono fuera de la marca) */
 .btn-solid { background: var(--amber); color: var(--ink); }
-.btn-solid:hover { color: var(--ink); filter: brightness(1.08); }
+.btn-solid:hover { background: var(--cream); color: var(--ink); }
+.section-cream .btn-solid:hover,
+.claro .btn-solid:hover { background: var(--ink); color: var(--amber); }
 .btn-outline { border: 1.5px solid var(--cream); color: var(--cream); padding: 13px 26px; }
 .btn-outline:hover { color: var(--amber); border-color: var(--amber); }
 .btn-dark { background: var(--ink); color: var(--cream); padding: 14px 26px; }
 .btn-dark:hover { color: var(--amber); }
 .btn-cream { background: var(--cream); color: var(--ink); padding: 14px 26px; }
-.btn-cream:hover { color: var(--ink); filter: brightness(1.05); }
+.btn-cream:hover { background: var(--amber); color: var(--ink); }
 .btn-row { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+
+/* Al presionar, lo que se toca se encoge un poco: la página contesta al dedo */
+@media (prefers-reduced-motion: no-preference) {
+  .btn:active:not(:disabled),
+  .atajo:active,
+  .stepper button:active:not(:disabled),
+  .pz-cerrar:active,
+  .opcion:active span,
+  .carrito-barra:active { transform: scale(0.97); }
+  .atajo, .stepper button, .pz-cerrar, .opcion span { transition: transform 160ms var(--ease-out); }
+}
 
 /* Franjas de color */
 .stripe-cream { background: var(--cream); }
@@ -242,15 +265,21 @@ h1, h2, h3 {
   gap: var(--space-6);
   align-items: center;
 }
+/* En computadora el texto lleva más ancho que el gato, para que el titular quepa en dos renglones */
+@media (min-width: 961px) {
+  .hero-inner { grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); }
+}
 
 .hero-copy {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: clamp(18px, 3vh, 28px);
 }
 
+/* Crece con su columna hasta el display-xl de la marca (64px): siempre dos renglones */
 .hero-copy h1 {
-  font-size: clamp(40px, min(6vw, 9.5vh), 84px);
+  font-size: clamp(40px, 8cqi, 64px);
   line-height: 1.02;
   letter-spacing: -0.02em;
   text-wrap: balance; /* renglones parejos: sin "llevar," solo en un renglón */
@@ -332,6 +361,8 @@ h1, h2, h3 {
 .menu-head .section-head { max-width: 640px; }
 
 .menu-cards { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+/* Cada tarjeta a su altura: Especiales es más corta que Café y no deja un bloque blanco vacío */
+.bebidas { align-items: start; }
 
 .menu-card {
   background: #ffffff;
@@ -375,7 +406,7 @@ h1, h2, h3 {
 .menu-guia { display: flex; flex-direction: column; gap: 10px; }
 .menu-leyenda { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px var(--space-3); font-size: 15px; color: var(--ink-muted); }
 .leyenda { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ink); }
-.price { font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+.price { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .menu-note { margin: 0; font-size: 14px; color: var(--ink-muted); }
 /* Cargo extra que aplica a todas las bebidas: va debajo de ellas, a la vista */
@@ -399,7 +430,7 @@ h1, h2, h3 {
   align-items: center;
   gap: 6px;
   margin-top: 2px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--ink-muted);
 }
@@ -421,7 +452,7 @@ h1, h2, h3 {
 /* Cada tarjeta a su altura: Leches es más corta que Sabores y no deja un bloque blanco vacío */
 .extras .menu-cards { align-items: start; }
 .extras .menu-row .estado { margin-top: 0; font-size: 13px; flex: none; }
-.extras .menu-row span:first-child .estado { margin-top: 2px; font-size: 12px; }
+.extras .menu-row span:first-child .estado { margin-top: 2px; }
 /* Precio de la tarjeta (Latte saborizado, Leche vegetal): lo primero que se lee, para que no haya dudas */
 .extra-precio {
   display: flex;
@@ -472,7 +503,7 @@ h1, h2, h3 {
 }
 
 .visit-copy h2 {
-  font-size: clamp(36px, 4.4vw, 60px);
+  font-size: clamp(32px, 3.6vw, 48px);
   line-height: 1.05;
   letter-spacing: -0.015em;
 }
@@ -558,7 +589,8 @@ h1, h2, h3 {
   .hero-row.m-only { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
   .hero-status { display: flex; flex-direction: column; gap: var(--space-2); font-size: 14px; font-weight: 500; }
   .hero-status > div { display: flex; align-items: center; gap: var(--space-2); }
-  .hero-status .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  /* Viñetas de un solo color: verde, ámbar y rojo juntos se leerían como semáforo */
+  .hero-status .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--cream); }
   .hero-cat-sm { width: 150px; height: 183px; flex: none; }
 
   .stripe-band div { height: 6px; }
@@ -612,7 +644,7 @@ h1, h2, h3 {
 @media (max-width: 700px) {
   .atajos.m-only { display: flex; gap: var(--space-2); overflow-x: auto; padding: 0 var(--space-3) 12px; scrollbar-width: none; }
   .atajos::-webkit-scrollbar { display: none; }
-  .atajo { flex: none; text-decoration: none; border: 1.5px solid var(--ink-muted-dark); color: var(--cream); font-size: 14px; font-weight: 600; padding: 9px var(--space-3); border-radius: var(--radius-full); }
+  .atajo { flex: none; text-decoration: none; border: 1.5px solid var(--ink-muted-dark); color: var(--cream); font-size: 14px; font-weight: 600; padding: 0 var(--space-3); min-height: 44px; display: inline-flex; align-items: center; border-radius: var(--radius-full); }
   .atajo-hoy { background: var(--cream); border-color: var(--cream); color: var(--ink); }
   /* Que la barra fija con los atajos no tape lo que se abre con ellos */
   section[id], #hoy, #carta { scroll-margin-top: 136px; }
@@ -624,7 +656,7 @@ h1, h2, h3 {
   .hoy { background: var(--ink); color: var(--cream); border-radius: var(--radius-md); padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
   .hoy-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .hoy-head .lbl { color: var(--amber); white-space: nowrap; }
-  .hoy-fecha { font-size: 12px; color: var(--ink-muted-dark); text-align: right; }
+  .hoy-fecha { font-size: 13px; color: var(--ink-muted-dark); text-align: right; }
   .hoy-linea { margin: 0; display: flex; gap: 12px; align-items: flex-start; font-size: 16px; font-weight: 500; }
   .hoy-linea b { color: var(--cream); font-weight: 700; }
   .hoy-pt { flex: none; width: 10px; height: 10px; margin-top: 7px; border-radius: 50%; background: var(--green); }
@@ -644,7 +676,7 @@ h1, h2, h3 {
   .carta-card-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
   .carta-card-head > span:first-child { display: flex; align-items: center; gap: var(--space-2); }
   .carta-card-head .tick { width: 20px; height: 6px; flex: none; }
-  .carta-num { font-size: 12px; font-weight: 600; color: var(--ink-muted); flex: none; }
+  .carta-num { font-size: 13px; font-weight: 600; color: var(--ink-muted); flex: none; }
   .oscura .carta-card-head .lbl { color: var(--amber); }
   .oscura .carta-num { color: var(--ink-muted-dark); }
 
@@ -666,10 +698,10 @@ h1, h2, h3 {
   .oscura .c-intro { color: var(--ink-muted-dark); }
   .oscura .c-intro b { color: var(--cream); }
   .oscura .c-intro .ambar { color: var(--amber); }
-  .c-nota { margin: 12px 0 0; font-size: 12px; color: var(--ink-muted); }
-  .c-pie { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--cream); display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
+  .c-nota { margin: 12px 0 0; font-size: 13px; color: var(--ink-muted); }
+  .c-pie { margin-top: auto; padding-top: var(--space-1); border-top: 1px solid var(--cream); display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
   .c-pie.fin { justify-content: flex-end; }
-  .c-pie a { text-decoration: none; color: var(--ink); padding: 6px 0; }
+  .c-pie a { text-decoration: none; color: var(--ink); min-height: 44px; display: inline-flex; align-items: center; }
   .oscura .c-pie { border-top-color: var(--line-2); }
   .oscura .c-pie a { color: var(--cream); }
 
@@ -683,9 +715,9 @@ h1, h2, h3 {
 
   /* Índice de la carta: la tarjeta que se ve queda marcada (aria-current lo pone el script) */
   .carta-indice { margin: 14px 0 0; display: flex; gap: 6px; }
-  .carta-indice a { flex: 1; text-decoration: none; text-align: center; font-size: 12px; font-weight: 600; color: var(--ink); padding: var(--space-2) 0 0; border-top: 4px solid; }
+  .carta-indice a { flex: 1; min-height: 44px; text-decoration: none; text-align: center; font-size: 13px; font-weight: 600; color: var(--ink); padding: 10px 0 0; border-top: 4px solid; }
   .carta-indice:has([aria-current]) a:not([aria-current]) { color: var(--ink-muted); }
-  .carta-indice a[aria-current] { font-weight: 700; border-top-width: 6px; padding-top: 6px; }
+  .carta-indice a[aria-current] { font-weight: 700; border-top-width: 6px; padding-top: var(--space-2); }
   .ind-blue { border-top-color: var(--blue) !important; }
   .ind-green { border-top-color: var(--green) !important; }
   .ind-red { border-top-color: var(--red) !important; }
@@ -712,7 +744,7 @@ button.btn:disabled { cursor: default; }
 .pi-desc { margin: var(--space-1) 0 0; font-size: 13px; line-height: 1.4; color: var(--ink-muted); }
 .pi-lado { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2); flex: none; }
 .pi-lado .price { font-size: 18px; }
-.pedir-item .btn-dark { padding: 10px 18px; }
+.pedir-item .btn-dark { padding: 10px 18px; min-height: 44px; }
 .pedir-item.agotada .pi-nombre, .pedir-item.agotada .price { color: var(--ink-muted); }
 .pedir-item.agotada .btn { background: none; border: 1px dashed var(--ink-muted); color: var(--ink-muted); }
 
@@ -726,7 +758,7 @@ button.btn:disabled { cursor: default; }
 .ci-linea { display: flex; justify-content: space-between; gap: 12px; font-weight: 600; }
 .ci-detalle { margin: 2px 0 var(--space-2); font-size: 13px; line-height: 1.4; color: var(--ink-muted); }
 .ci-acciones { display: flex; justify-content: space-between; align-items: center; }
-.ci-quitar { background: none; border: 0; padding: var(--space-2) 0; font: inherit; font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.ci-quitar { background: none; border: 0; padding: 0; min-height: 44px; font: inherit; font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
 .carrito-datos { display: flex; flex-direction: column; gap: var(--space-3); }
 .campo { display: flex; flex-direction: column; gap: 6px; }
@@ -744,12 +776,26 @@ button.btn:disabled { cursor: default; }
 .stepper { display: inline-flex; align-items: center; gap: var(--space-2); }
 .stepper button { width: 44px; height: 44px; border-radius: var(--radius-full); border: 1.5px solid var(--ink); background: #ffffff; color: var(--ink); font: inherit; font-size: 20px; font-weight: 600; line-height: 1; cursor: pointer; }
 .stepper button:disabled { border-color: var(--ink-muted); color: var(--ink-muted); border-style: dashed; cursor: default; }
-.stepper output { min-width: 24px; text-align: center; font-weight: 700; font-size: 18px; }
-.stepper-sm button { width: 36px; height: 36px; font-size: 18px; }
+.stepper output { min-width: 24px; text-align: center; font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; }
 
 /* Ventana para personalizar (y la simulación de Mercado Pago) */
 .personaliza { border: 0; padding: 0; width: min(480px, calc(100% - 32px)); max-height: calc(100dvh - 32px); border-radius: var(--radius-md); background: #ffffff; color: var(--ink); }
 .personaliza::backdrop { background: rgb(26 26 26 / .75); }
+/* Entrar 250ms, salir 150ms: la salida siempre más rápida. Con menos movimiento queda solo la opacidad */
+.personaliza, .personaliza::backdrop {
+  transition: opacity 150ms var(--ease-out), transform 150ms var(--ease-out), overlay 150ms allow-discrete, display 150ms allow-discrete;
+}
+.personaliza[open], .personaliza[open]::backdrop { transition-duration: 250ms; }
+.personaliza:not([open]), .personaliza:not([open])::backdrop { opacity: 0; }
+@starting-style {
+  .personaliza[open], .personaliza[open]::backdrop { opacity: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .personaliza:not([open]) { transform: scale(0.95); }
+  @starting-style {
+    .personaliza[open] { transform: scale(0.95); }
+  }
+}
 .personaliza form, .mp-simulado[open] { display: flex; flex-direction: column; gap: 20px; }
 .personaliza form, .mp-simulado { padding: var(--space-4); }
 .pz-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-3); }
@@ -769,7 +815,7 @@ button.btn:disabled { cursor: default; }
 .personaliza form { padding-bottom: 0; }
 /* Cantidad y «Agregar» siempre a la vista, aunque las opciones no quepan */
 .pz-pie { position: sticky; bottom: 0; background: #ffffff; display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); padding: var(--space-3) 0 var(--space-4); border-top: 1px solid var(--cream); }
-.pz-pie .btn { flex: 1; text-align: center; }
+.pz-pie .btn { flex: 1; text-align: center; min-height: 44px; }
 
 .mp-opciones { display: flex; flex-direction: column; gap: 10px; }
 .mp-opciones .btn { text-align: center; }
@@ -789,6 +835,16 @@ button.btn:disabled { cursor: default; }
 
 .carrito-barra { position: fixed; z-index: 40; left: var(--space-3); right: var(--space-3); bottom: var(--space-3); display: none; justify-content: space-between; align-items: center; gap: 12px; background: var(--amber); color: var(--ink); text-decoration: none; font-weight: 600; padding: 14px 20px; border-radius: var(--radius-full); box-shadow: 0 6px 20px rgb(26 26 26 / .35); }
 .carrito-barra:hover { color: var(--ink); }
+/* Entra cuando aparece (hay pedido y la lista está a la vista); agregar más bebidas no la vuelve a animar */
+.carrito-barra { transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out); }
+@starting-style {
+  .carrito-barra { opacity: 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  @starting-style {
+    .carrito-barra { transform: translateY(16px); }
+  }
+}
 
 @media (max-width: 900px) {
   .pedir-grid { grid-template-columns: 1fr; }
@@ -810,4 +866,12 @@ button.btn:disabled { cursor: default; }
   .personaliza form { padding-bottom: 0; }
   .pz-pie { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
   .pz-head h3 { font-size: 24px; }
+}
+/* En celular la hoja sube desde abajo con la curva de cajón */
+@media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
+  .personaliza[open] { transition-duration: 320ms; transition-timing-function: var(--ease-drawer); }
+  .personaliza:not([open]) { transform: translateY(100%); }
+  @starting-style {
+    .personaliza[open] { transform: translateY(100%); }
+  }
 }
