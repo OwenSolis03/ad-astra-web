@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=25">
+<link rel="stylesheet" href="css/styles.css?v=27">
 </head>
 <body>
 
@@ -241,6 +241,58 @@
       <p class="pe-texto" id="pe-texto"></p>
       <ul class="pe-items" id="pe-items"></ul>
       <div class="btn-row"><button type="button" class="btn btn-dark" id="pe-cerrar"></button></div>
+    </div>
+
+    <!-- Pedido en curso guardado en este navegador: lleva al seguimiento -->
+    <a class="mi-pedido" id="mi-pedido" href="#pedir" hidden><span><span class="mi-pedido-lbl">Tienes un pedido en curso</span><span id="mi-pedido-texto"></span></span><span class="mi-pedido-ir">Ver mi pedido →</span></a>
+
+    <!-- Seguimiento del pedido: ?pedido=<número>. Pagado → Preparando → Listo → Entregado -->
+    <div class="seguimiento claro" id="seguimiento" hidden aria-labelledby="sg-titulo">
+      <div class="sg-head">
+        <div>
+          <p class="lbl lbl-ink">Tu pedido</p>
+          <h3 id="sg-titulo" tabindex="-1"></h3>
+        </div>
+        <div class="sg-codigo">
+          <span class="sg-codigo-lbl">Código para recoger</span>
+          <span class="sg-codigo-num" id="sg-codigo"></span>
+        </div>
+      </div>
+      <div class="sg-ahora" id="sg-ahora">
+        <p class="sg-estado" id="sg-estado"></p>
+        <p class="sg-detalle" id="sg-detalle"></p>
+      </div>
+      <ol class="sg-pasos" id="sg-pasos" aria-label="Avance del pedido">
+        <li data-paso="pagado"><span class="sg-punto" aria-hidden="true"></span><span>Pagado</span></li>
+        <li data-paso="preparando"><span class="sg-punto" aria-hidden="true"></span><span>Preparando</span></li>
+        <li data-paso="listo"><span class="sg-punto" aria-hidden="true"></span><span>Listo</span></li>
+        <li data-paso="entregado"><span class="sg-punto" aria-hidden="true"></span><span id="sg-ultimo-paso">Entregado</span></li>
+      </ol>
+      <dl class="sg-datos">
+        <div><dt>Recoge</dt><dd id="sg-recoge"></dd></div>
+        <div><dt>Te lo guardamos hasta</dt><dd id="sg-hasta"></dd></div>
+        <div><dt>A nombre de</dt><dd id="sg-nombre"></dd></div>
+      </dl>
+      <ul class="sg-items" id="sg-items"></ul>
+      <div class="sg-acciones">
+        <button type="button" class="btn btn-dark" id="sg-avisar" hidden>Avisarme cuando esté listo</button>
+        <button type="button" class="btn btn-outline-ink" id="sg-copiar">Copiar enlace</button>
+        <button type="button" class="btn btn-outline-ink" id="sg-otro">Hacer otro pedido</button>
+      </div>
+      <p class="sg-nota" id="sg-nota">Esta página se actualiza sola. Con el enlace puedes volver a verla desde cualquier navegador.</p>
+    </div>
+
+    <!-- Maqueta: lo que hará el barista en el POS -->
+    <div class="pos-simulado" id="pos-simulado" hidden>
+      <p class="maqueta-aviso"><span class="maqueta-tag">Simulación</span>Mueve el pedido como lo hará el barista en el POS:</p>
+      <div class="pos-botones">
+        <button type="button" class="btn btn-cream btn-sm" data-estado="preparando">Preparando</button>
+        <button type="button" class="btn btn-cream btn-sm" data-estado="listo">Listo</button>
+        <button type="button" class="btn btn-cream btn-sm" data-estado="entregado">Entregado</button>
+        <button type="button" class="btn btn-cream btn-sm" data-estado="no_recogido">No recogido</button>
+        <button type="button" class="btn btn-outline btn-sm" id="pos-listo-luego">Listo en 10 s</button>
+      </div>
+      <p class="pos-nota">«Listo en 10 s»: cambia de pestaña mientras tanto para ver el aviso.</p>
     </div>
 
     <div class="pedir-grid">
@@ -935,6 +987,10 @@
   function guardar(clave, valor) { try { sessionStorage.setItem(clave, JSON.stringify(valor)); } catch (e) {} }
   function leer(clave) { try { return JSON.parse(sessionStorage.getItem(clave)); } catch (e) { return null; } }
   function borrar(clave) { try { sessionStorage.removeItem(clave); } catch (e) {} }
+  function guardarLocal(clave, valor) { try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) {} }
+  function leerLocal(clave) { try { return JSON.parse(localStorage.getItem(clave)); } catch (e) { return null; } }
+  // Un pedido se busca primero en este navegador y luego en la pestaña (los de antes del seguimiento)
+  function leerPedido(id) { return leerLocal('adastra:pedido:' + id) || leer('adastra:pedido:' + id); }
 
   var carrito = leer('adastra:carrito') || [];
   // Un pedido guardado de antes de la regla puede pasarse del tope: se recorta desde el final
@@ -1321,9 +1377,14 @@
       asap: sel.value === 'asap',
       recoger: h.etiqueta + ', ' + hora(h.m),
       hasta: hora(h.m + GUARDADO),
+      fecha: h.fecha,
+      m: h.m,
+      // En la versión real el código lo da el POS al confirmar el pago
+      codigo: String(1000 + Math.floor(Math.random() * 9000)),
       turnos: h.turnos
     };
-    guardar('adastra:pedido:' + pedidoActual.id, pedidoActual);
+    // En este navegador (localStorage), para que «Ver mi pedido» siga ahí aunque se cierre la pestaña
+    guardarLocal('adastra:pedido:' + pedidoActual.id, pedidoActual);
     $('mp-json').textContent = JSON.stringify(preferencia(pedidoActual), null, 2);
     mp.showModal();
   });
@@ -1339,13 +1400,218 @@
     });
   });
 
+  // ---- Seguimiento del pedido ----
+  // El POS mueve el pedido: pagado → preparando → listo → entregado (o no_recogido). En la versión real,
+  // consultarEstado lee el documento público del pedido en Firestore (pedidos/<número>, que solo se puede
+  // leer sabiendo el número). En la maqueta lee lo que deja el simulador del POS en este navegador.
+  var PASOS = ['pagado', 'preparando', 'listo', 'entregado'];
+  var FINALES = { entregado: true, no_recogido: true };
+  var CONSULTA_MS = 15000;
+  var seguido = null, estadoVisto = null, consulta = null, avisoCinco = false;
+  var tituloOriginal = document.title;
+
+  function consultarEstado(id) { return Promise.resolve(leerLocal('adastra:estado:' + id)); }
+  function minutoHMO() { var d = new Date(Date.now() - 7 * 3600e3); return d.getUTCHours() * 60 + d.getUTCMinutes(); }
+  // Minutos que faltan para que se acabe el guardado (null si el pedido es de otro día)
+  function quedan(p) { return p.fecha === fechaHMO(0) ? p.m + GUARDADO - minutoHMO() : null; }
+
+  function textos(p, estado) {
+    var r = quedan(p);
+    var resta = r === null ? '' : r > 0 ? ' Quedan ' + r + ' min.' : ' Ya pasó la hora de guardado: pásate cuanto antes.';
+    switch (estado) {
+      case 'pendiente': return ['Esperando la confirmación del pago', 'Mercado Pago todavía no confirma tu pago. Empezamos a prepararlo en cuanto llegue.'];
+      case 'preparando': return ['Lo estamos preparando', 'Estará listo para ' + p.recoger.toLowerCase() + '.'];
+      case 'listo': return ['¡Listo! Pásate al puesto 3', 'Di tu nombre y el código ' + p.codigo + '. Te lo guardamos hasta las ' + p.hasta + '.' + resta];
+      case 'entregado': return ['Entregado. ¡Buen despegue!', 'Gracias por pedir con Ad Astra.'];
+      case 'no_recogido': return ['Ya no te lo pudimos guardar', 'Te lo guardamos hasta las ' + p.hasta + ' y ya pasó esa hora. Como dice la política, ya no hay reembolso. Si crees que es un error, escríbenos por Instagram.'];
+      default: return ['Pagado: tu pedido está en la fila', 'Lo empezamos a preparar unos minutos antes de tu hora (' + p.recoger.toLowerCase() + ').'];
+    }
+  }
+
+  function pintarSeguimiento(estado) {
+    var p = seguido;
+    var t = textos(p, estado);
+    $('sg-estado').textContent = t[0];
+    $('sg-detalle').textContent = t[1];
+    $('seguimiento').dataset.estado = estado;
+    // Pasos: hechos, el actual (aria-current) y los que faltan. «No recogido» toma el lugar de «Entregado».
+    var actual = estado === 'no_recogido' ? 3 : PASOS.indexOf(estado);
+    $('sg-ultimo-paso').textContent = estado === 'no_recogido' ? 'No recogido' : 'Entregado';
+    $('sg-pasos').querySelectorAll('li').forEach(function (li, i) {
+      li.className = i < actual || (i === actual && FINALES[estado]) ? 'hecho' : i === actual ? 'actual' : '';
+      if (i === actual) li.setAttribute('aria-current', 'step');
+      else li.removeAttribute('aria-current');
+    });
+    $('sg-avisar').hidden = !('Notification' in window) || Notification.permission !== 'default' || FINALES[estado] || estado === 'listo';
+    $('pos-simulado').hidden = !!FINALES[estado];
+    pintarMiPedido();
+  }
+
+  function abrirSeguimiento(p, enfocar) {
+    seguido = p;
+    var numero = p.id.replace('-', '‑'); // guion que no parte el número
+    $('sg-titulo').textContent = 'Pedido ' + numero;
+    $('sg-codigo').textContent = p.codigo || '—';
+    $('sg-recoge').textContent = p.recoger;
+    $('sg-hasta').textContent = p.hasta;
+    $('sg-nombre').textContent = p.nombre;
+    $('sg-items').textContent = '';
+    p.items.forEach(function (i) {
+      var li = document.createElement('li');
+      li.textContent = i.cantidad + ' × ' + i.nombre + ' · ' + i.detalle;
+      $('sg-items').appendChild(li);
+    });
+    $('seguimiento').hidden = false;
+    $('pos-simulado').hidden = false;
+    $('mi-pedido').hidden = true;
+    estadoVisto = null;
+    avisoCinco = false;
+    revisar();
+    clearInterval(consulta);
+    consulta = setInterval(revisar, CONSULTA_MS);
+    if (enfocar) {
+      var ir = function () {
+        $('seguimiento').scrollIntoView({ block: 'start', behavior: 'instant' });
+        $('sg-titulo').focus({ preventScroll: true });
+      };
+      if (document.readyState === 'complete') ir();
+      else window.addEventListener('load', function () { setTimeout(ir, 0); });
+    }
+  }
+
+  function revisar() {
+    if (!seguido) return;
+    consultarEstado(seguido.id).then(function (estado) {
+      estado = estado || 'pagado';
+      if (estado !== estadoVisto) {
+        // El primer pintado no avisa: solo los cambios mientras la página está abierta
+        if (estadoVisto !== null) {
+          anunciar(textos(seguido, estado).join(' '));
+          if (estado === 'listo') avisarListo();
+        }
+        estadoVisto = estado;
+      }
+      pintarSeguimiento(estado);
+      // Cinco minutos antes de que se acabe el guardado, un aviso más (una sola vez)
+      var r = quedan(seguido);
+      if (estado === 'listo' && r !== null && r <= 5 && r > 0 && !avisoCinco) {
+        avisoCinco = true;
+        avisar('Tu pedido te espera · ' + r + ' min', 'Te lo guardamos hasta las ' + seguido.hasta + '. Código ' + seguido.codigo + '.');
+      }
+      if (FINALES[estado]) clearInterval(consulta);
+    });
+  }
+
+  $('sg-otro').addEventListener('click', function () {
+    clearInterval(consulta);
+    seguido = null;
+    $('seguimiento').hidden = true;
+    $('pos-simulado').hidden = true;
+    history.replaceState(null, '', location.pathname + '#pedir');
+    pintarMiPedido();
+    $('pedir-titulo').focus();
+  });
+  $('sg-copiar').addEventListener('click', function () {
+    var enlace = location.origin + location.pathname + '?pedido=' + seguido.id + '#pedir';
+    var listo = function () { $('sg-copiar').textContent = 'Enlace copiado'; anunciar('Enlace copiado.'); setTimeout(function () { $('sg-copiar').textContent = 'Copiar enlace'; }, 2000); };
+    if (navigator.clipboard) navigator.clipboard.writeText(enlace).then(listo, function () { prompt('Copia este enlace:', enlace); });
+    else prompt('Copia este enlace:', enlace);
+  });
+
+  // «Tienes un pedido en curso»: el último pedido de este navegador mientras no se haya entregado
+  function pintarMiPedido() {
+    var id = leerLocal('adastra:ultimo');
+    var p = id && leerPedido(id);
+    var estado = id && (leerLocal('adastra:estado:' + id) || 'pagado');
+    var vigente = p && !FINALES[estado] && p.fecha >= fechaHMO(0);
+    $('mi-pedido').hidden = !vigente || (seguido && seguido.id === id);
+    if (!vigente) return;
+    $('mi-pedido').href = location.pathname + '?pedido=' + id + '#pedir';
+    $('mi-pedido-texto').textContent = p.id + ' · ' + textos(p, estado)[0];
+  }
+
+  // Simulador del POS (maqueta)
+  var luego = null;
+  function moverPedido(estado) {
+    guardarLocal('adastra:estado:' + seguido.id, estado);
+    revisar();
+  }
+  $('pos-simulado').querySelectorAll('[data-estado]').forEach(function (b) {
+    b.addEventListener('click', function () { prepararSonido(); moverPedido(b.dataset.estado); });
+  });
+  $('pos-listo-luego').addEventListener('click', function () {
+    prepararSonido();
+    clearTimeout(luego);
+    var id = seguido.id;
+    $('pos-listo-luego').textContent = 'Listo en 10 s…';
+    luego = setTimeout(function () {
+      $('pos-listo-luego').textContent = 'Listo en 10 s';
+      if (seguido && seguido.id === id) moverPedido('listo');
+    }, 10000);
+  });
+  // Otra pestaña con el mismo pedido se entera al momento
+  window.addEventListener('storage', function (e) { if (seguido && e.key === 'adastra:estado:' + seguido.id) revisar(); });
+
+  // ---- Aviso en la pestaña cuando está listo ----
+  // Vibra, suena (si ya hubo un toque en la página: el navegador no deja sonar sin él), cambia el título
+  // de la pestaña y, si dieron permiso, manda una notificación mientras la pestaña está en segundo plano.
+  var sonido = null;
+  function prepararSonido() {
+    try {
+      sonido = sonido || new (window.AudioContext || window.webkitAudioContext)();
+      if (sonido.state === 'suspended') sonido.resume();
+    } catch (e) {}
+  }
+  function tocarSonido() {
+    if (!sonido) return;
+    try {
+      [0, 0.18].forEach(function (inicio, i) {
+        var osc = sonido.createOscillator(), vol = sonido.createGain();
+        osc.frequency.value = i ? 880 : 660;
+        vol.gain.setValueAtTime(0.0001, sonido.currentTime + inicio);
+        vol.gain.exponentialRampToValueAtTime(0.2, sonido.currentTime + inicio + 0.02);
+        vol.gain.exponentialRampToValueAtTime(0.0001, sonido.currentTime + inicio + 0.16);
+        osc.connect(vol); vol.connect(sonido.destination);
+        osc.start(sonido.currentTime + inicio); osc.stop(sonido.currentTime + inicio + 0.18);
+      });
+    } catch (e) {}
+  }
+  function avisar(titulo, cuerpo) {
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    tocarSonido();
+    if (document.hidden) document.title = titulo + ' · Ad Astra';
+    if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+      try { new Notification(titulo, { body: cuerpo, icon: 'img/favicon.svg', tag: seguido ? seguido.id : 'ad-astra' }); } catch (e) {}
+    }
+  }
+  function avisarListo() { avisar('Tu pedido está listo', 'Pásate al puesto 3. Código ' + seguido.codigo + '.'); }
+  // Al volver a la pestaña, el título regresa y se revisa el estado sin esperar
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) { document.title = tituloOriginal; revisar(); }
+  });
+  $('sg-avisar').addEventListener('click', function () {
+    prepararSonido();
+    Notification.requestPermission().then(function (permiso) {
+      $('sg-avisar').hidden = true;
+      anunciar(permiso === 'granted' ? 'Listo: te avisamos cuando tu pedido esté listo.' : 'Sin notificaciones: te avisamos aquí, con la página abierta.');
+    });
+  });
+
   // ---- Regreso de Mercado Pago ----
   // Lo que dice la URL solo sirve para avisar al cliente: el pago lo confirma el POS con el webhook
   var params = new URLSearchParams(location.search);
   var ref = params.get('external_reference') || params.get('pedido');
   var status = params.get('status') || params.get('collection_status');
-  if (ref && status) {
-    var pedido = leer('adastra:pedido:' + ref);
+  var pedidoUrl = ref ? leerPedido(ref) : null;
+  $('pedir-titulo').tabIndex = -1;
+  // Pago aprobado o pendiente, o solo ?pedido=: el seguimiento. Rechazado: el aviso de abajo.
+  if (pedidoUrl && (!status || status === 'approved' || status === 'pending' || status === 'in_process')) {
+    if (!leerLocal('adastra:estado:' + ref)) guardarLocal('adastra:estado:' + ref, status === 'approved' ? 'pagado' : status ? 'pendiente' : 'pagado');
+    guardarLocal('adastra:ultimo', ref);
+    carrito = [];
+    abrirSeguimiento(pedidoUrl, true);
+  } else if (ref && status) {
+    var pedido = pedidoUrl;
     var ok = status === 'approved', pendiente = status === 'pending' || status === 'in_process';
     $('pedido-estado').hidden = false;
     $('pedido-estado').className = 'pedido-estado claro ' + (ok ? 'ok' : pendiente ? 'pendiente' : 'fallo');
@@ -1395,6 +1661,7 @@
   pintarLista();
   pintarHoras();
   pintarCarrito();
+  if (!seguido) pintarMiPedido();
 })();
 </script>
 

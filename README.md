@@ -104,6 +104,15 @@ de 15 min, y el pedido se guarda 15 min después de su hora. Un pedido de 3 o 4 
 turno y el anterior. La página solo las muestra: el POS tiene que volver a revisarlas al crear el
 pedido, porque cualquiera puede saltarse lo que hace la página.
 
+Seguimiento del pedido (aún en maqueta): `?pedido=<número>#pedir` muestra el código de 4 dígitos,
+la hora para recoger, hasta cuándo se guarda y el avance Pagado → Preparando → Listo → Entregado
+(o No recogido). La página consulta el estado cada 15 s; en la versión real lo lee de un documento
+público por pedido (por ejemplo `pedidos/<número>` con `estado`: `pagado`, `preparando`, `listo`,
+`entregado` o `no_recogido`), que el POS cambia con sus botones. Las reglas de Firestore deben
+dejar leer un pedido solo por su número (sin listar) y el documento llevar solo lo mínimo: estado,
+hora e inicial del nombre. El código para recoger también lo da el POS. Al pasar a «Listo», la
+página vibra, suena, cambia el título de la pestaña y, con permiso, manda una notificación.
+
 Sin datos (sin conexión o sin permiso), el menú se ve sin etiquetas y la sección de
 sabores y leches muestra solo sus precios, con un "pregunta en el puesto" en lugar de la lista.
 
