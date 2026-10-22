@@ -750,7 +750,9 @@ button.btn:disabled { cursor: default; }
 .pi-lado .price { font-size: 18px; }
 .pedir-item .btn-dark { padding: 10px 18px; min-height: 44px; }
 .pedir-item.agotada .pi-nombre, .pedir-item.agotada .price { color: var(--ink-muted); }
-.pedir-item.agotada .btn { background: none; border: 1px dashed var(--ink-muted); color: var(--ink-muted); }
+/* Agotada o pedido completo: el botón queda punteado y en ink-muted, sin hover */
+.pedir-item .btn:disabled,
+.pedir-item .btn:disabled:hover { background: none; border: 1px dashed var(--ink-muted); color: var(--ink-muted); }
 
 .carrito { position: sticky; top: var(--space-4); background: var(--cream); color: var(--ink); border-radius: var(--radius-md) var(--radius-md) var(--radius-md) var(--radius-lg); padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-3); }
 .carrito-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
@@ -775,7 +777,22 @@ button.btn:disabled { cursor: default; }
 .carrito-total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 12px; border-top: 1.5px solid var(--ink); font-weight: 600; }
 .carrito-total .price { font-size: 28px; }
 .btn-pagar { display: block; width: 100%; text-align: center; font-size: 16px; padding: 15px; }
+.btn-pagar:disabled,
+.claro .btn-pagar:disabled:hover { background: none; border: 1.5px dashed var(--ink-muted); color: var(--ink-muted); }
 .carrito-nota { margin: 0; font-size: 13px; color: var(--ink-muted); }
+
+/* Tope del pedido: aviso con salida (Instagram para pedidos grandes) */
+.tope-aviso { margin: 0; display: flex; gap: var(--space-2); align-items: flex-start; background: #ffffff; border-radius: var(--radius-sm); padding: 12px; font-size: 14px; line-height: 1.45; }
+.tope-aviso::before { content: "!"; display: inline-grid; place-items: center; width: 18px; height: 18px; margin-top: 1px; flex: none; border-radius: 50%; background: var(--ink); color: var(--cream); font-size: 12px; font-weight: 700; }
+/* La sección es oscura y sus enlaces son crema: dentro del aviso blanco van en espresso */
+.tope-aviso a, .tope-aviso a:hover { color: var(--ink); font-weight: 600; text-underline-offset: 3px; }
+/* Lo que se acepta al pagar: junto al botón, no escondido en otra página */
+.politica { font-size: 13px; line-height: 1.45; color: var(--ink-muted); }
+.politica-titulo { margin: 0 0 var(--space-1); font-weight: 600; color: var(--ink); }
+.politica ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: var(--space-1); }
+/* Va en el pie fijo, encima de la cantidad: se lee junto al «+» que se apagó */
+.pz-pie { flex-wrap: wrap; }
+.pz-tope { flex-basis: 100%; margin: 0; font-size: 13px; font-weight: 600; color: var(--ink); }
 
 .stepper { display: inline-flex; align-items: center; gap: var(--space-2); }
 .stepper button { width: 44px; height: 44px; border-radius: var(--radius-full); border: 1.5px solid var(--ink); background: #ffffff; color: var(--ink); font: inherit; font-size: 20px; font-weight: 600; line-height: 1; cursor: pointer; }

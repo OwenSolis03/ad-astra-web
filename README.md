@@ -93,6 +93,16 @@ que publica el POS tras cada venta o movimiento de inventario:
   **Jarabes y polvos** y **Leches** del inventario del POS; para que un insumo aparezca
   (o deje de aparecer) basta con cambiarle la categoría en Inventario → Editar. Los
   insumos que nunca se han capturado no se publican.
+- `pedidosEnLinea.ocupados` (pedidos para recoger, aún en maqueta): bebidas en línea ya
+  apartadas por turno de 15 min, con la hora de Hermosillo, por ejemplo
+  `{ "2026-10-22 10:15": 2 }`. Cada turno admite 2 bebidas en línea; las horas sin lugar
+  no se ofrecen. Sin el campo, todos los turnos se ven libres.
+
+Reglas de los pedidos para recoger (`TOPE`, `CUPO_TURNO`, `TURNO` y `GUARDADO` al inicio del
+script del pedido en `index.html`): máximo 4 bebidas por pedido, 2 bebidas en línea por turno
+de 15 min, y el pedido se guarda 15 min después de su hora. Un pedido de 3 o 4 bebidas ocupa su
+turno y el anterior. La página solo las muestra: el POS tiene que volver a revisarlas al crear el
+pedido, porque cualquiera puede saltarse lo que hace la página.
 
 Sin datos (sin conexión o sin permiso), el menú se ve sin etiquetas y la sección de
 sabores y leches muestra solo sus precios, con un "pregunta en el puesto" en lugar de la lista.

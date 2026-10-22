@@ -19,7 +19,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=22">
+<link rel="stylesheet" href="css/styles.css?v=25">
 </head>
 <body>
 
@@ -250,6 +250,7 @@
         <div class="carrito-head"><h3 id="carrito-titulo">Tu pedido</h3><span class="carrito-cuenta" id="carrito-cuenta"></span></div>
         <p class="carrito-vacio" id="carrito-vacio">Todavía no agregas nada. Elige una bebida para empezar.</p>
         <ul class="carrito-items" id="carrito-items"></ul>
+        <p class="tope-aviso" id="tope-aviso" hidden><span>Llegaste al máximo de 4 bebidas por pedido. Para pedidos más grandes, <a href="https://www.instagram.com/adastra_hmo">escríbenos por Instagram</a> con un día de anticipación.</span></p>
         <div class="carrito-datos" id="carrito-datos" hidden>
           <div class="campo">
             <label for="pedido-nombre">¿A nombre de quién?</label>
@@ -262,7 +263,15 @@
             <p class="campo-nota" id="hora-nota" hidden></p>
           </div>
           <div class="carrito-total"><span>Total</span><span class="price" id="carrito-total">$0</span></div>
-          <button type="button" class="btn btn-solid btn-pagar" id="btn-pagar">Pagar con Mercado Pago</button>
+          <div class="politica" id="politica">
+            <p class="politica-titulo">Antes de pagar</p>
+            <ul>
+              <li>Te guardamos tu pedido 15 min después de tu hora<span id="guardado-hasta"></span>. Después ya no lo guardamos y no hay reembolso.</li>
+              <li>Puedes cancelar mientras no empecemos a prepararlo.</li>
+              <li>Máximo 4 bebidas por pedido.</li>
+            </ul>
+          </div>
+          <button type="button" class="btn btn-solid btn-pagar" id="btn-pagar" aria-describedby="politica">Pagar con Mercado Pago</button>
           <p class="carrito-nota">Pagas con tarjeta o saldo de Mercado Pago y vuelves aquí con tu número de pedido.</p>
         </div>
       </aside>
@@ -287,6 +296,7 @@
       <fieldset class="pz-grupo" id="pz-leche"><legend>Leche</legend><div class="opciones"></div></fieldset>
       <fieldset class="pz-grupo" id="pz-sabor"><legend id="pz-sabor-leyenda">Sabor</legend><div class="opciones"></div></fieldset>
       <div class="pz-pie">
+        <p class="pz-tope" id="pz-tope" hidden></p>
         <div class="stepper" role="group" aria-label="Cantidad">
           <button type="button" id="pz-menos" aria-label="Uno menos">−</button>
           <output id="pz-cantidad" aria-live="polite">1</output>
@@ -694,7 +704,8 @@
       if (i < tarjetas.length - 1) { var b = nuevo('a', null, titulo(tarjetas[i + 1]) + ' →'); b.href = '#' + tarjetas[i + 1].id; pie.appendChild(b); }
     });
     var atajos = document.querySelector('.atajos');
-    atajos.querySelectorAll('a:not(#atajo-hoy)').forEach(function (a) { a.remove(); });
+    // «Pedir» y «Hoy» son fijos; solo se rehacen los de las tarjetas de la carta
+    atajos.querySelectorAll('a:not(#atajo-hoy):not(.atajo-pedir)').forEach(function (a) { a.remove(); });
     var indice = document.querySelector('.carta-indice');
     indice.textContent = '';
     tarjetas.forEach(function (c) {
@@ -850,14 +861,16 @@
     if (pintados) document.getElementById('extras-al-dia').hidden = false;
     pintarPastillas('chips-sabores', 'chips-sabores-sin-datos', sabores);
     pintarPastillas('chips-leches', 'chips-leches-sin-datos', leches, precioLeche);
-    // El pedido para recoger usa lo mismo: { bebida del sitio: { estatus, temps } }, sabores y leches del día
+    // El pedido para recoger usa lo mismo: { bebida del sitio: { estatus, temps } }, sabores y leches del día,
+    // y los turnos que ya están apartados (pedidosEnLinea.ocupados). Va después de armar la carta, así que
+    // las filas del menú ya son las del POS.
     var bebidas = {};
     document.querySelectorAll('.bebidas .menu-row').forEach(function (fila) {
       var nombre = fila.querySelector('span').firstChild.textContent.trim();
       var k = claveProducto(nombre, estatus);
       bebidas[nombre] = { estatus: estatus[k], temps: temperaturas[k] || {} };
     });
-    document.dispatchEvent(new CustomEvent('adastra:menu', { detail: { bebidas: bebidas, sabores: sabores, leches: leches } }));
+    document.dispatchEvent(new CustomEvent('adastra:menu', { detail: { bebidas: bebidas, sabores: sabores, leches: leches, pedidosEnLinea: campo(doc, 'pedidosEnLinea') } }));
     // «Hoy en la barra»: lo agotado del día (bebidas, sabores y leches)
     Object.keys(sabores).sort(alfabetico).forEach(function (n) { if (sabores[n] === 'agotado') agotados.push(n); });
     Object.keys(leches).sort(alfabetico).forEach(function (n) { if (leches[n] === 'agotado') agotados.push(nombreLecheLargo(n)); });
@@ -893,23 +906,47 @@
   var LECHES_BASE = ['Almendras', 'Avena', 'Soya'];
   var SABORES_BASE = ['Amaretto', 'Avellana', 'Caramelo', 'Chai', 'Crema Irlandesa', 'Vainilla'];
 
-  // Bebidas tal como están en el menú de computadora: nombre, precio, descripción y temperaturas
-  var BEBIDAS = Array.prototype.map.call(document.querySelectorAll('.bebidas .menu-row'), function (fila) {
-    var temps = Array.prototype.map.call(fila.querySelectorAll('.temps svg'), function (s) { return s.dataset.temp; });
-    return {
-      nombre: fila.querySelector('span').firstChild.textContent.trim(),
-      precio: precio(fila.querySelector('.price').textContent),
-      desc: fila.querySelector('.menu-desc').textContent,
-      temps: temps
-    };
-  });
+  // Reglas de los pedidos en línea (las repite el POS al crear el pedido; aquí solo se muestran)
+  var TOPE = 4;          // bebidas por pedido
+  var CUPO_TURNO = 2;    // bebidas en línea por turno de 15 min (un tercio de lo que saca la barra)
+  var TURNO = 15;        // minutos; cada turno se prepara en los 15 min antes de su hora
+  var GUARDADO = 15;     // minutos que se guarda un pedido después de su hora
+  var INSTAGRAM = 'https://www.instagram.com/adastra_hmo';
+
+  // Bebidas tal como están en el menú de computadora: nombre, precio, descripción y temperaturas.
+  // Se vuelven a leer cuando llega el POS, que puede rearmar el menú con su carta.
+  function leerBebidas() {
+    return Array.prototype.map.call(document.querySelectorAll('.bebidas .menu-row'), function (fila) {
+      var temps = Array.prototype.map.call(fila.querySelectorAll('.temps svg'), function (s) { return s.dataset.temp; });
+      var desc = fila.querySelector('.menu-desc');
+      return {
+        nombre: fila.querySelector('span').firstChild.textContent.trim(),
+        precio: precio(fila.querySelector('.price').textContent),
+        desc: desc ? desc.textContent : '',
+        temps: temps
+      };
+    });
+  }
+  var BEBIDAS = leerBebidas();
   var hoy = { bebidas: {}, sabores: null, leches: null };
+  // { "AAAA-MM-DD HH:MM": bebidas ya apartadas en ese turno }, de pedidosEnLinea.ocupados del POS
+  var ocupados = {};
 
   function guardar(clave, valor) { try { sessionStorage.setItem(clave, JSON.stringify(valor)); } catch (e) {} }
   function leer(clave) { try { return JSON.parse(sessionStorage.getItem(clave)); } catch (e) { return null; } }
   function borrar(clave) { try { sessionStorage.removeItem(clave); } catch (e) {} }
 
   var carrito = leer('adastra:carrito') || [];
+  // Un pedido guardado de antes de la regla puede pasarse del tope: se recorta desde el final
+  (function () {
+    var sobra = carrito.reduce(function (s, i) { return s + i.cantidad; }, 0) - TOPE;
+    for (var i = carrito.length - 1; sobra > 0 && i >= 0; i--) {
+      var quita = Math.min(sobra, carrito[i].cantidad);
+      carrito[i].cantidad -= quita;
+      sobra -= quita;
+    }
+    carrito = carrito.filter(function (i) { return i.cantidad > 0; });
+  })();
   function anunciar(texto) { $('pedir-anuncio').textContent = ''; setTimeout(function () { $('pedir-anuncio').textContent = texto; }, 50); }
 
   // ---- Lista de bebidas ----
@@ -953,8 +990,7 @@
         btn.disabled = true;
         btn.textContent = 'Agotado hoy';
       } else {
-        btn.textContent = 'Agregar';
-        btn.setAttribute('aria-label', 'Agregar ' + b.nombre);
+        btn.dataset.bebida = b.nombre;
         btn.addEventListener('click', function () { abrir(b); });
       }
       lado.appendChild(p);
@@ -962,6 +998,17 @@
       li.appendChild(info);
       li.appendChild(lado);
       lista.appendChild(li);
+    });
+    botonesLista();
+  }
+  // Con el pedido lleno (4 bebidas) los «Agregar» se apagan y dicen por qué
+  function restante() { return TOPE - piezas(); }
+  function botonesLista() {
+    var lleno = restante() <= 0;
+    lista.querySelectorAll('button[data-bebida]').forEach(function (btn) {
+      btn.disabled = lleno;
+      btn.textContent = lleno ? 'Pedido completo' : 'Agregar';
+      btn.setAttribute('aria-label', lleno ? 'Pedido completo: máximo ' + TOPE + ' bebidas' : 'Agregar ' + btn.dataset.bebida);
     });
   }
 
@@ -1002,6 +1049,7 @@
     });
   }
   function abrir(b) {
+    if (restante() <= 0) return;
     actual = b;
     cantidad = 1;
     $('pz-titulo').textContent = b.nombre;
@@ -1041,10 +1089,15 @@
   function actualizarBoton() {
     $('pz-cantidad').textContent = cantidad;
     $('pz-menos').disabled = cantidad <= 1;
+    $('pz-mas').disabled = cantidad >= restante();
     $('pz-agregar').textContent = 'Agregar · ' + pesos(unitario() * cantidad);
+    // Cuánto cabe todavía en el pedido, solo cuando ya hay algo en él
+    var r = restante();
+    $('pz-tope').hidden = r >= TOPE;
+    $('pz-tope').textContent = 'Puedes agregar ' + (r === 1 ? '1 bebida más' : r + ' bebidas más') + ': el máximo es ' + TOPE + ' por pedido.';
   }
   $('pz-menos').addEventListener('click', function () { if (cantidad > 1) cantidad--; actualizarBoton(); });
-  $('pz-mas').addEventListener('click', function () { if (cantidad < 9) cantidad++; actualizarBoton(); });
+  $('pz-mas').addEventListener('click', function () { if (cantidad < restante()) cantidad++; actualizarBoton(); });
   $('pz-cerrar').addEventListener('click', function () { dialogo.close(); });
   $('pz-form').addEventListener('submit', function (e) {
     e.preventDefault();
@@ -1054,12 +1107,16 @@
     if (elegido('sabor')) detalle.push((CON_SABOR[actual.nombre] ? '' : 'Jarabe de ') + elegido('sabor'));
     var linea = { nombre: actual.nombre, detalle: detalle.join(' · '), unitario: unitario(), cantidad: cantidad };
     // La misma bebida armada igual suma cantidad en lugar de repetirse
+    cantidad = Math.min(cantidad, restante());
     var igual = carrito.filter(function (i) { return i.nombre === linea.nombre && i.detalle === linea.detalle; })[0];
-    if (igual) igual.cantidad = Math.min(9, igual.cantidad + cantidad);
+    if (igual) igual.cantidad += cantidad;
     else carrito.push(linea);
     dialogo.close();
     pintarCarrito();
-    anunciar('Agregaste ' + cantidad + ' ' + actual.nombre + '. Total ' + pesos(total()) + '.');
+    anunciar('Agregaste ' + cantidad + ' ' + actual.nombre + '. Total ' + pesos(total()) + '.'
+      + (restante() <= 0 ? ' Llegaste al máximo de ' + TOPE + ' bebidas.' : ''));
+    // El «Agregar» que abrió la ventana quedó apagado: el foco va al pedido
+    if (restante() <= 0) $('carrito-titulo').focus();
   });
 
   // ---- Carrito ----
@@ -1099,7 +1156,7 @@
       out.textContent = i.cantidad;
       var mas = document.createElement('button');
       mas.type = 'button'; mas.textContent = '+'; mas.setAttribute('aria-label', 'Uno más');
-      mas.disabled = i.cantidad >= 9;
+      mas.disabled = piezas() >= TOPE;
       mas.addEventListener('click', function () { i.cantidad++; pintarCarrito(); ul.children[idx].querySelectorAll('button')[1].focus(); });
       st.appendChild(menos); st.appendChild(out); st.appendChild(mas);
       var quitar = document.createElement('button');
@@ -1127,6 +1184,10 @@
     $('carrito-total').textContent = pesos(total());
     $('btn-pagar').textContent = 'Pagar ' + pesos(total()) + ' con Mercado Pago';
     $('barra-texto').textContent = 'Ver tu pedido · ' + piezas() + ' · ' + pesos(total());
+    $('tope-aviso').hidden = restante() > 0;
+    botonesLista();
+    // Cuántas bebidas hay decide cuántos turnos ocupa el pedido: las horas se recalculan
+    pintarHoras();
     revisarBarra();
   }
   $('carrito-titulo').tabIndex = -1;
@@ -1143,41 +1204,80 @@
     new IntersectionObserver(function (v) { pedirVisible = v[0].isIntersecting; revisarBarra(); }).observe($('pedir'));
   }
 
-  // ---- Hora para recoger (hora de Hermosillo; el último turno es 15 min antes de cerrar) ----
+  // ---- Hora para recoger: turnos de 15 min con cupo en línea (hora de Hermosillo) ----
+  // Cada turno se prepara en los 15 min antes de su hora y le caben CUPO_TURNO bebidas en línea. El turno de
+  // la hora elegida se llena primero y lo que no cabe pasa al anterior: un pedido de 3 o 4 bebidas empieza
+  // a prepararse un turno antes y está completo a la hora elegida. Una hora aparece solo si caben todas.
   function hora(m) {
     var h = Math.floor(m / 60), mm = m % 60;
     return (h % 12 || 12) + ':' + (mm < 10 ? '0' : '') + mm + (h < 12 ? ' am' : ' pm');
   }
+  // Fecha de Hermosillo (UTC−7 todo el año, sin horario de verano) dentro de `dias` días
+  function fechaHMO(dias) { return new Date(Date.now() - 7 * 3600e3 + dias * 864e5).toISOString().slice(0, 10); }
+  function claveTurno(fecha, m) { return fecha + ' ' + ('0' + Math.floor(m / 60)).slice(-2) + ':' + ('0' + m % 60).slice(-2); }
+  function libres(fecha, m) { return Math.max(0, CUPO_TURNO - (Number(ocupados[claveTurno(fecha, m)]) || 0)); }
+  // [{ turno, bebidas }] para recoger a la hora `m`, o null si no caben. `inicio`: desde cuándo se puede preparar.
+  function reparto(fecha, m, inicio) {
+    var resto = piezas(), turnos = [];
+    for (var t = m; resto > 0; t -= TURNO) {
+      if (t - TURNO < inicio || turnos.length >= Math.ceil(TOPE / CUPO_TURNO)) return null;
+      var caben = Math.min(resto, libres(fecha, t));
+      if (caben) { turnos.push({ turno: claveTurno(fecha, t), bebidas: caben }); resto -= caben; }
+    }
+    return turnos;
+  }
+  // Horas de un día: desde `inicio` (minuto) hasta el último turno, 15 min antes de cerrar
+  function horasDelDia(hz, etiqueta, fecha, inicio) {
+    var salida = [];
+    for (var m = Math.ceil((inicio + TURNO) / TURNO) * TURNO; m <= hz.cierra - TURNO; m += TURNO) {
+      var r = reparto(fecha, m, inicio);
+      if (r) salida.push({ etiqueta: etiqueta, fecha: fecha, m: m, turnos: r });
+    }
+    return salida;
+  }
+  var horas = [];
   function pintarHoras() {
     var hz = window.AdAstra && window.AdAstra.horario;
     var sel = $('pedido-hora');
+    var antes = horas[sel.selectedIndex];
+    var antesAsap = sel.value === 'asap';
     sel.textContent = '';
-    if (!hz) return;
-    var ultimo = hz.cierra - 15;
-    var desde, dia;
-    if (hz.abierto && hz.minuto < ultimo) {
-      var asap = document.createElement('option');
-      asap.value = 'asap';
-      asap.textContent = 'Lo antes posible (unos 10 min)';
-      sel.appendChild(asap);
-      desde = Math.ceil((hz.minuto + 15) / 15) * 15;
-      dia = 'Hoy';
-      $('hora-nota').hidden = true;
-    } else {
-      // Cerrado: el pedido queda para el siguiente día que abrimos
-      var entreSemana = hz.dia >= 1 && hz.dia <= 5;
-      dia = entreSemana && hz.minuto < hz.abre ? 'Hoy' : (hz.dia >= 1 && hz.dia <= 4 ? 'Mañana' : 'El lunes');
-      desde = hz.abre;
-      $('hora-nota').textContent = 'Ahora estamos cerrados. Tu pedido queda para ' + dia.toLowerCase() + '.';
-      $('hora-nota').hidden = false;
+    horas = [];
+    if (!hz || !piezas()) return;
+    var entreSemana = hz.dia >= 1 && hz.dia <= 5;
+    var hoyAbre = entreSemana && hz.minuto < hz.cierra - TURNO;
+    if (hoyAbre) horas = horasDelDia(hz, 'Hoy', fechaHMO(0), Math.max(hz.minuto, hz.abre));
+    var nota = '';
+    if (!horas.length) {
+      // Hoy no se puede (cerrado o sin lugar): el siguiente día que abrimos
+      var dias = entreSemana ? (hz.dia === 5 ? 3 : 1) : (hz.dia === 6 ? 2 : 1);
+      var etiqueta = dias === 1 ? 'Mañana' : 'El lunes';
+      horas = horasDelDia(hz, etiqueta, fechaHMO(dias), hz.abre);
+      nota = hoyAbre ? 'Hoy ya no hay lugar en línea. Ven al puesto o deja tu pedido para ' + etiqueta.toLowerCase() + '.'
+        : 'Ahora estamos cerrados. Tu pedido queda para ' + etiqueta.toLowerCase() + '.';
     }
-    for (var m = desde; m <= ultimo; m += 15) {
+    horas.forEach(function (h, i) {
       var o = document.createElement('option');
-      o.value = dia + ' ' + hora(m);
-      o.textContent = dia + ', ' + hora(m);
+      o.value = i === 0 && hz.abierto && h.etiqueta === 'Hoy' ? 'asap' : String(i);
+      o.textContent = o.value === 'asap' ? 'Lo antes posible: hacia las ' + hora(h.m) : h.etiqueta + ', ' + hora(h.m);
       sel.appendChild(o);
+    });
+    // Conserva la hora que ya habían elegido si sigue disponible
+    if (antes && !antesAsap) {
+      horas.forEach(function (h, i) { if (h.fecha === antes.fecha && h.m === antes.m) sel.selectedIndex = i; });
     }
+    if (!horas.length) nota = 'Ya no hay horarios en línea disponibles. Ven al puesto 3.';
+    $('hora-nota').textContent = nota;
+    $('hora-nota').hidden = !nota;
+    $('btn-pagar').disabled = !horas.length;
+    pintarGuardado();
   }
+  // La política dice hasta qué hora se guarda el pedido con la hora elegida
+  function pintarGuardado() {
+    var h = horas[$('pedido-hora').selectedIndex];
+    $('guardado-hasta').textContent = h ? ' (hasta las ' + hora(h.m + GUARDADO) + ')' : '';
+  }
+  $('pedido-hora').addEventListener('change', pintarGuardado);
 
   // ---- Pagar (simulado) ----
   var mp = $('mp-simulado');
@@ -1191,7 +1291,11 @@
         return { title: i.nombre, description: i.detalle, quantity: i.cantidad, unit_price: i.unitario, currency_id: 'MXN' };
       }),
       external_reference: pedido.id,
-      metadata: { nombre: pedido.nombre, recoger: pedido.recoger, origen: 'sitio' },
+      // turnos: [{ turno: "AAAA-MM-DD HH:MM", bebidas }]; el POS los vuelve a revisar contra su cupo
+      metadata: { nombre: pedido.nombre, recoger: pedido.recoger, turnos: pedido.turnos, origen: 'sitio' },
+      // El pago caduca a los 15 min: un pedido sin pagar no aparta su turno para siempre
+      expires: true,
+      expiration_date_to: new Date(Date.now() + 15 * 60e3).toISOString(),
       back_urls: { success: vuelta, pending: vuelta, failure: vuelta },
       auto_return: 'approved',
       // Café para recoger: sin pagos en efectivo (OXXO) que tardan en acreditarse
@@ -1207,12 +1311,17 @@
       return;
     }
     var sel = $('pedido-hora');
+    var h = horas[sel.selectedIndex];
+    if (!h) return;
     pedidoActual = {
       id: 'AA-' + Date.now().toString(36).slice(-6).toUpperCase(),
       items: carrito.map(function (i) { return { nombre: i.nombre, detalle: i.detalle, unitario: i.unitario, cantidad: i.cantidad }; }),
       total: total(),
       nombre: nombre,
-      recoger: sel.value === 'asap' ? 'Lo antes posible' : sel.options[sel.selectedIndex].textContent
+      asap: sel.value === 'asap',
+      recoger: h.etiqueta + ', ' + hora(h.m),
+      hasta: hora(h.m + GUARDADO),
+      turnos: h.turnos
     };
     guardar('adastra:pedido:' + pedidoActual.id, pedidoActual);
     $('mp-json').textContent = JSON.stringify(preferencia(pedidoActual), null, 2);
@@ -1243,9 +1352,10 @@
     var numero = ref.replace('-', '‑'); // guion que no parte el número de pedido
     $('pe-titulo').textContent = ok ? '¡Listo! Pedido ' + numero + ' pagado'
       : pendiente ? 'Pedido ' + numero + ': pago pendiente' : 'No se completó el pago';
-    var cuando = pedido ? (pedido.recoger === 'Lo antes posible' ? ' en unos 10 minutos' : ' para ' + pedido.recoger.toLowerCase()) : '';
+    var cuando = pedido ? (pedido.asap ? ' lo antes posible, hacia ' + pedido.recoger.replace(/^Hoy, /, 'las ') : ' para ' + pedido.recoger.toLowerCase()) : '';
+    var hasta = pedido && pedido.hasta ? ' Te lo guardamos hasta las ' + pedido.hasta + '.' : '';
     $('pe-texto').textContent = ok
-      ? 'Te lo preparamos' + cuando + '. Pásate al puesto 3' + (pedido ? ' y di que es a nombre de ' + pedido.nombre : '') + '.'
+      ? 'Te lo preparamos' + cuando + '. Pásate al puesto 3' + (pedido ? ' y di que es a nombre de ' + pedido.nombre : '') + '.' + hasta
       : pendiente ? 'Mercado Pago todavía no confirma tu pago. Empezamos a prepararlo en cuanto llegue la confirmación.'
       : 'No se te cobró nada. Tu pedido sigue aquí abajo para que lo intentes otra vez.';
     if (pedido && (ok || pendiente)) {
@@ -1277,7 +1387,10 @@
 
   document.addEventListener('adastra:menu', function (e) {
     hoy = e.detail;
+    BEBIDAS = leerBebidas();
+    ocupados = (e.detail.pedidosEnLinea && e.detail.pedidosEnLinea.ocupados) || {};
     pintarLista();
+    pintarHoras();
   });
   pintarLista();
   pintarHoras();
