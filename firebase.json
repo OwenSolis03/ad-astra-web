@@ -6,6 +6,7 @@
       ".firebaserc",
       "app.yaml",
       "README.md",
+      "CLAUDE.md",
       "**/.*",
       "**/.*/**"
     ],

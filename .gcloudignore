@@ -3,5 +3,8 @@
 .git
 .gitignore
 README.md
+CLAUDE.md
 firebase.json
 .firebaserc
+.firebase/
+.claude/
