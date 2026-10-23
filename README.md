@@ -97,8 +97,11 @@ que publica el POS tras cada venta o movimiento de inventario:
   insumos que nunca se han capturado no se publican.
 - `pedidosEnLinea`: `{ activo, ocupados }`. `ocupados` son las bebidas en línea ya apartadas
   por turno de 15 min, con la hora de Hermosillo, por ejemplo `{ "2026-10-22 10:15": 2 }`.
-  Cada turno admite 2 bebidas en línea; las horas sin lugar no se ofrecen. Con `activo: false`
-  (el POS pausó los pedidos en línea) no se puede pagar. Sin el campo, todos los turnos se ven libres.
+  Cada turno admite 2 bebidas en línea; las horas sin lugar no se ofrecen. Los pedidos en línea
+  solo se abren con `activo: true`. Sin el campo, con `activo: false` (el POS los pausó) o si no se
+  pudo leer el menú, la sección «Pide para recoger» y sus accesos (barra, atajo del celular y botón
+  del hero) no se ven; solo se muestra para seguir un pedido que ya existe, y a quien ya estaba
+  armando uno le avisa que están en pausa.
 
 Reglas de los pedidos para recoger (`TOPE`, `CUPO_TURNO`, `TURNO` y `GUARDADO` al inicio del
 script del pedido en `index.html`): máximo 4 bebidas por pedido, 2 bebidas en línea por turno

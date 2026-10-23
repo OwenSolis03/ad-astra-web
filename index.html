@@ -40,13 +40,13 @@
     <div class="nav-links">
       <a href="#como-funciona">Cómo funciona</a>
       <a href="#menu">Menú</a>
-      <a href="#pedir">Pedir para recoger</a>
+      <a href="#pedir" data-pedidos hidden>Pedir para recoger</a>
       <a href="#visitanos">Dónde estamos</a>
       <a href="https://maps.app.goo.gl/BQwbnPw9BGxAhbF48" class="btn btn-solid"><svg class="pin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg>Cómo llegar</a>
     </div>
   </nav>
   <nav class="atajos m-only" aria-label="Atajos del menú">
-    <a href="#pedir" class="atajo atajo-pedir">Pedir</a><a href="#hoy" class="atajo atajo-hoy" id="atajo-hoy" hidden>Hoy</a><a href="#cafe" class="atajo">Café</a><a href="#especiales" class="atajo">Especiales</a><a href="#sabores" class="atajo">Sabores</a><a href="#leches" class="atajo">Leches</a>
+    <a href="#pedir" class="atajo atajo-pedir" data-pedidos hidden>Pedir</a><a href="#hoy" class="atajo atajo-hoy" id="atajo-hoy" hidden>Hoy</a><a href="#cafe" class="atajo">Café</a><a href="#especiales" class="atajo">Especiales</a><a href="#sabores" class="atajo">Sabores</a><a href="#leches" class="atajo">Leches</a>
   </nav>
 </header>
 
@@ -76,8 +76,9 @@
         <img class="hero-cat-sm" src="img/gato-astronauta.svg" alt="" aria-hidden="true">
       </div>
       <div class="btn-row d-only">
-        <a href="#pedir" class="btn btn-solid btn-lg">Pide para recoger</a>
-        <a href="#menu" class="btn btn-outline btn-lg">Ver el menú</a>
+        <!-- Con los pedidos en línea cerrados solo queda «Ver el menú», como botón principal -->
+        <a href="#pedir" class="btn btn-solid btn-lg" data-pedidos hidden>Pide para recoger</a>
+        <a href="#menu" class="btn btn-solid btn-lg" id="hero-menu">Ver el menú</a>
       </div>
     </div>
     <div class="hero-art d-only">
@@ -226,7 +227,8 @@
 </section>
 
 <!-- PEDIR PARA RECOGER: arma el pedido, lo manda a la función crearPedido y paga en Checkout Pro de Mercado Pago -->
-<section id="pedir" class="pedir grid-bg" aria-labelledby="pedir-titulo">
+<!-- Oculta hasta que el POS abra los pedidos en línea (publico/menu.pedidosEnLinea.activo = true) -->
+<section id="pedir" class="pedir grid-bg" aria-labelledby="pedir-titulo" hidden>
   <div class="container stack-48">
     <div class="section-head">
       <p class="lbl lbl-amber">Pide para recoger</p>
@@ -959,7 +961,9 @@ window.AdAstraNube = /^(127\.0\.0\.1|localhost)$/.test(location.hostname) && loc
   var hoy = { bebidas: {}, sabores: null, leches: null };
   // { "AAAA-MM-DD HH:MM": bebidas ya apartadas en ese turno }, de pedidosEnLinea.ocupados del POS
   var ocupados = {};
-  var pausa = false; // pedidosEnLinea.activo === false: el POS pausó los pedidos en línea
+  // Cerrado hasta que el POS publique pedidosEnLinea.activo === true. Sin el campo, sin menú o sin conexión
+  // también es cerrado: la página nunca ofrece pedir si no sabe que la barra los está recibiendo.
+  var pausa = true;
 
   function guardar(clave, valor) { try { sessionStorage.setItem(clave, JSON.stringify(valor)); } catch (e) {} }
   function leer(clave) { try { return JSON.parse(sessionStorage.getItem(clave)); } catch (e) { return null; } }
@@ -1338,12 +1342,23 @@ window.AdAstraNube = /^(127\.0\.0\.1|localhost)$/.test(location.hostname) && loc
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (doc) {
         var f = doc && doc.fields && doc.fields.pedidosEnLinea && doc.fields.pedidosEnLinea.mapValue.fields;
-        if (!f) return;
-        pausa = !!(f.activo && f.activo.booleanValue === false);
+        if (!f) { pausa = true; return; }
+        pausa = !(f.activo && f.activo.booleanValue === true);
         var o = (f.ocupados && f.ocupados.mapValue && f.ocupados.mapValue.fields) || {};
         ocupados = {};
         Object.keys(o).forEach(function (k) { ocupados[k] = Number(o[k].integerValue || o[k].doubleValue || 0); });
-      }).catch(function () {}).then(pintarHoras);
+      }).catch(function () {}).then(function () { pintarHoras(); mostrarPedidos(); });
+  }
+  // Con los pedidos cerrados no se ve la sección ni sus accesos (barra, atajo, botón del hero), salvo para seguir
+  // un pedido que ya existe o terminar uno que se estaba armando cuando el POS pausó (ahí avisa la nota de la hora).
+  function mostrarPedidos() {
+    var siguiendo = !!seguido || !$('pedido-estado').hidden || !$('mi-pedido').hidden;
+    var armando = carrito.length > 0;
+    $('pedir').hidden = pausa && !siguiendo && !armando;
+    document.querySelector('.pedir-grid').hidden = pausa && !armando;
+    document.querySelectorAll('[data-pedidos]').forEach(function (el) { el.hidden = pausa; });
+    $('hero-menu').className = 'btn btn-lg ' + (pausa ? 'btn-solid' : 'btn-outline');
+    $('sg-otro').hidden = pausa; // con los pedidos cerrados no se puede «hacer otro»
   }
   $('btn-pagar').addEventListener('click', function () {
     if (pagando) return;
@@ -1506,6 +1521,7 @@ window.AdAstraNube = /^(127\.0\.0\.1|localhost)$/.test(location.hostname) && loc
     });
     $('seguimiento').hidden = false;
     $('mi-pedido').hidden = true;
+    mostrarPedidos(); // un pedido que ya existe se sigue aunque los pedidos estén cerrados
     estadoVisto = null;
     avisoCinco = false;
     revisar();
@@ -1553,6 +1569,7 @@ window.AdAstraNube = /^(127\.0\.0\.1|localhost)$/.test(location.hostname) && loc
     $('seguimiento').hidden = true;
     history.replaceState(null, '', location.pathname + '#pedir');
     pintarMiPedido();
+    mostrarPedidos();
     $('pedir-titulo').focus();
   });
   $('sg-copiar').addEventListener('click', function () {
@@ -1682,14 +1699,16 @@ window.AdAstraNube = /^(127\.0\.0\.1|localhost)$/.test(location.hostname) && loc
     hoy = e.detail;
     BEBIDAS = leerBebidas();
     ocupados = (e.detail.pedidosEnLinea && e.detail.pedidosEnLinea.ocupados) || {};
-    pausa = !!(e.detail.pedidosEnLinea && e.detail.pedidosEnLinea.activo === false);
+    pausa = !(e.detail.pedidosEnLinea && e.detail.pedidosEnLinea.activo === true);
     pintarLista();
     pintarHoras();
+    mostrarPedidos();
   });
   pintarLista();
   pintarHoras();
   pintarCarrito();
   if (!seguido) pintarMiPedido();
+  mostrarPedidos();
 })();
 </script>
 
